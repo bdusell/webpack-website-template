@@ -1,0 +1,36 @@
+@import '_variables';
+
+.site-footer {
+  background-color: $footer-bg-color;
+  display: block;
+  width: 100%;
+}
+
+.site-social-media-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: $footer-height;
+
+  & > a {
+    display: flex;
+    align-items: center;
+
+    .icon {
+      margin: 5px;
+      margin-right: 10px;
+      font-size: 120%;
+    }
+
+    &:hover {
+      .site-link-underline {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  & > span {
+    padding: 0 10px;
+    user-select: none;
+  }
+}

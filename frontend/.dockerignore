@@ -1,0 +1,13 @@
+dist/
+etc/
+
+Dockerfile*
+**/scripts/
+**/VERSION
+
+**/.git*
+**/__pycache__/
+**/.venv/
+**/node_modules/
+**/*.swp
+**/.directory

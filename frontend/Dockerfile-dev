@@ -1,0 +1,16 @@
+FROM node:20.10.0-bookworm
+# Remove the default node user, since its id can conflict with ids on the host.
+# See https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md#non-root-user
+RUN deluser --remove-all-files node
+# Pin the version of npm.
+RUN npm install -g npm@10.2.5
+# Disable checking for updates for npm.
+# See https://docs.npmjs.com/cli/v10/using-npm/config#update-notifier
+ENV NPM_CONFIG_UPDATE_NOTIFIER false
+# Install zopfli, which is used for static compression.
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        zopfli='1.*' \
+        && \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /app

@@ -1,0 +1,28 @@
+// Responsive layout thresholds.
+$responsive-desktop-width: 800px;
+
+// General width settings.
+$general-column-max-width: 1000px;
+$general-side-padding: 10px;
+$general-color-trans-duration: 0.2s;
+$general-fg-color: lighten(black, 10%);
+$general-active-fg-color: lighten($general-fg-color, 15%);
+
+// Header.
+$header-height-desktop: 40px;
+$header-height-mobile: 50px;
+$header-links-gutter: 10px;
+$header-social-links-gutter: 5px;
+
+// Footer.
+$footer-height: 100px;
+$footer-bg-color: #202126;
+
+// Side menu.
+$side-menu-max-width: 300px;
+$side-menu-top-sep-color: darken(white, 10%);
+$side-menu-bottom-set-color: darken(white, 20%);
+
+// z-indexes
+$header-z-index: 2;
+$side-menu-z-index: 1;

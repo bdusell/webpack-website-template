@@ -1,0 +1,167 @@
+-
+  function toISODateTime(s) {
+    const { DateTime } = require('luxon');
+    return DateTime.fromISO(s).toFormat('yyyy-MM-dd');
+  }
+-
+  const _metadata = require('./metadata');
+  const baseUrl = _metadata.baseUrl;
+  // These are variables that can be used to configure this template by
+  // redefining them in the `variables` block.
+  // Note that in Webpack mode, images should be the result of a `require()`.
+  // Note that Twitter cards are picky about the aspect ratio of the image.
+  // See https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards
+  let title = null;
+  let description = null;
+  let canonical = null;
+  let image = null;
+  let imageAlt = null;
+  let isArticle = false;
+  let articlePublishedAt = null;
+  let articleModifiedAt = null;
+  let articleAuthorTwitter = null;
+  let articleSection = null;
+  let favicon = _metadata.favicon;
+  const og = {
+    title: null,
+    image: null,
+    url: null,
+    description: null,
+    siteName: _metadata.siteName,
+    imageAlt: null
+  };
+  const twitter = {
+    // Choices are 'summary' and 'summary_large_image'.
+    cardType: 'summary_large_image',
+    site: _metadata.siteTwitterAccount,
+    title: null,
+    description: null,
+    image: null,
+    imageAlt: null
+  };
+//- Override this block and assign values to the above variables to customize
+//- the behavior of this template.
+block variables
+-
+  const debugTag = canonical || title;
+
+  // Title
+  if(title == null) {
+    throw new Error(`\`title\` is missing (${debugTag})`);
+  }
+  if(og.title == null) og.title = title;
+  if(twitter.title == null) twitter.title = title;
+
+  // Canonical URL
+  if(canonical != null && !/^https?:\/\//.test(canonical)) canonical = baseUrl + canonical;
+  if(og.url == null) og.url = canonical;
+  if(og.url == null) {
+    throw new Error(`\`og.url\` is required (${debugTag})`);
+  }
+  if(twitter.title.length > 70) {
+    throw new Error(`\`twitter.title\` can be at most 70 characters long (${debugTag})`);
+  }
+
+  // Description
+  if(og.description == null) og.description = description;
+  if(twitter.description == null) twitter.description = description;
+  if(twitter.description != null && twitter.description.length > 200) {
+    throw new Error(`\`twitter.description\` can be at most 200 characters long (${debugTag})`);
+  }
+
+  // Image
+  if(og.image == null) og.image = image;
+  if(og.imageAlt == null) og.imageAlt = imageAlt;
+  if(og.image != null && og.imageAlt == null) {
+    throw new Error(`\`og.image\` is present but \`og.imageAlt\` is missing (${debugTag})`);
+  }
+  if(twitter.image == null) twitter.image = image;
+  if(twitter.image != null) {
+    if(twitter.imageAlt == null) twitter.imageAlt = imageAlt;
+    if(twitter.imageAlt == null) {
+      throw new Error(`\`twitter.image\` is present but \`twitter.imageAlt\` is ` +
+                      `missing (${debugTag})`);
+    }
+    if(twitter.imageAlt.length > 420) {
+      throw new Error(`\`twitter.imageAlt\` can be at most 420 characters long (${debugTag})`);
+    }
+  }
+
+  if(!(twitterCardType === 'summary' || twitterCardType === 'summary_large_image') {
+    throw new Error(`\`twitter.cardType\` must be 'summary' or 'summary_large_image` (${debugTag})`);
+  }
+
+  // Articles
+  if(isArticle) {
+    if(articlePublishedAt != null) {
+      articlePublishedAt = toISODateTime(articlePublishedAt);
+    }
+    if(articleModifiedAt != null) {
+      articleModifiedAt = toISODateTime(articleModifiedAt);
+    }
+  }
+doctype html
+//- Set the language of the page to English.
+html(lang='en')
+  head
+    //- Indicate that the encoding of the document is UTF-8.
+    meta(charset='utf-8')
+    title= title
+    if description != null
+      meta(name='description' content=description)
+    //- Make sure the web page isn't shown zoomed-out on mobile devices.
+    meta(name='viewport'
+         content='width=device-width, initial-scale=1.0, user-scalable=1')
+    //- This is where the <link> tags for the CSS will go.
+    //- See https://stackoverflow.com/questions/14389566/stop-css-transition-from-firing-on-page-load/42969608
+    != htmlWebpackPlugin.tags.headTags
+    //- This where tags for Google Fonts can go.
+    block fonts
+      -
+    //- Favicon.
+    if favicon != null
+      link(rel='shortcut icon' href=favicon)
+    //- Canonical URL.
+    if canonical != null
+      link(rel='canonical' href=canonical)
+    //- Open Graph meta tags, which are used for preview cards on some websites
+    //- and apps.
+    meta(property='og:title' content=og.title)
+    meta(property='og:type' content=isArticle ? 'article' : 'website')
+    if isArticle
+      if articlePublishedAt != null
+        meta(property='article:published_time' content=articlePublishedAt)
+      if articleModifiedAt != null
+        meta(property='article:modified_time' content=articleModifiedAt)
+      if articleAuthorTwitter != null
+        meta(property='article:author' content=`https://twitter.com/${articleAuthorTwitter}`)
+      if articleSection != null
+        meta(property='article:section' content=articleSection)
+    if og.image != null
+      meta(property='og:image' content=baseUrl + og.image)
+      meta(property='og:image:alt' content=og.imageAlt)
+    if og.url != null
+      meta(property='og:url' content=og.url)
+    if og.description != null
+      meta(property='og:description' content=og.description)
+    if og.siteName != null
+      meta(property='og:site_name' content=og.siteName)
+    //- Twitter card meta tags.
+    meta(name='twitter:card' content=twitter.cardType)
+    if twitter.site != null
+      meta(name='twitter:site' content=`@${twitter.site}`)
+    meta(name='twitter:title' content=twitter.title)
+    if twitter.description != null
+      meta(name='twitter:description' content=twitter.description)
+    if articleAuthorTwitter != null
+      meta(name='twitter:creator' content=`@${articleAuthorTwitter}`)
+    if twitter.image != null
+      meta(name='twitter:image' content=baseUrl + twitter.image)
+      meta(name='twitter:image:alt' content=twitter.imageAlt)
+    //- Google Analytics script tag.
+    if useGoogleAnalytics
+      include ./_google_analytics.html
+  body
+    block body
+    //- This is where the <script> tags for the JS will go.
+    != htmlWebpackPlugin.tags.bodyTags
