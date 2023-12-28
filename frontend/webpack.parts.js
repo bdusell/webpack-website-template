@@ -431,16 +431,20 @@ exports.loadHTML = function(options = {}) {
 };
 
 exports.page = function({
-  data = {},
-  inject = false,
+  outputName,
+  template,
+  chunks = [],
   minifyHtml = false,
-  ...options
+  data = {},
+  injectTags = false
 }) {
   // See https://webpack.js.org/guides/output-management/#setting-up-htmlwebpackplugin
   // If inject = false, then automatically wrap `data` in a function. The
-  // extra parameters are only accessible if `data` is a function. (Yes, it's
-  // really this stupid.)
-  if(inject === false && typeof data === 'object') {
+  // extra parameters are only accessible if `data` is a function.
+  // See https://github.com/jantimon/html-webpack-plugin/blob/main/examples/template-parameters/webpack.config.js
+  // See https://github.com/jantimon/html-webpack-plugin?tab=readme-ov-file#writing-your-own-templates
+  /*
+  if(injectTags === false && typeof data === 'object') {
     const dataObject = data;
     data = function(compilation, assets, assetTags, options) {
       return {
@@ -455,12 +459,34 @@ exports.page = function({
       };
     };
   }
+  */
   return {
-    plugins: [new HtmlWebpackPlugin({
-      templateParameters: data,
-      inject,
-      ...options
-    })]
+    plugins: [
+      new HtmlWebpackPlugin({
+        filename: outputName,
+        template: template,
+        templateParameters: data,
+        inject: injectTags,
+        minify: minifyHtml ?
+          // See https://github.com/terser/html-minifier-terser?tab=readme-ov-file#options-quick-reference
+          {
+            collapseBooleanAttributes: true,
+            collapseWhitespace: true,
+            // Important: collapse but do not completely remove runs of
+            // whitespace or newlines, which could visually change the page.
+            conservativeCollapse: true,
+            preserveLineBreaks: true,
+            decodeEntities: true,
+            removeComments: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            sortAttributes: true,
+            sortClassName: true
+          } :
+          false
+      })
+    ]
   };
 };
 

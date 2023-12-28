@@ -37,7 +37,7 @@ const NODE_MODULES_DIR = path.join(BASE_DIR, 'node_modules');
 
 // TODO polyfill core-js?
 
-function page(name, { minify, data } = {}) {
+function page(name, { minifyHtml, data } = {}) {
   return merge([
     {
       entry: {
@@ -45,10 +45,10 @@ function page(name, { minify, data } = {}) {
       }
     },
     parts.page({
-      filename: `${name}.html`,
+      outputName: `${name}.html`,
       template: path.join(HTML_DIR, `${name}.pug`),
       chunks: [name],
-      minify,
+      minifyHtml,
       data
     })
   ]);
@@ -65,16 +65,6 @@ module.exports = async function(mode, {
 
   const isProduction = mode === 'production';
 
-  const minifyHTMLOptions = {
-    collapseWhitespace: true,
-    // This is important
-    conservativeCollapse: true,
-    removeComments: true,
-    removeRedundantAttributes: true,
-    removeScriptTypeAttributes: true,
-    removeStyleLinkTypeAttributes: true
-  };
-
   let result = merge([
     // Targets
     pages([
@@ -83,7 +73,7 @@ module.exports = async function(mode, {
       data: {
         useGoogleAnalytics: isProduction
       },
-      minify: isProduction ? minifyHTMLOptions : false
+      minifyHtml: isProduction
     }),
     // Configure output
     {
@@ -179,8 +169,6 @@ module.exports = async function(mode, {
       }
     }),
     // Progress messages
-    // TODO Remove this for faster builds?
-    // https://webpack.js.org/guides/build-performance/#progress-plugin
     {
       plugins: [
         new WebpackBar()
