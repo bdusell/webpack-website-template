@@ -1,36 +1,9 @@
-extends _header_footer.pug
-
-block variables
-  -
-    title = 'Webpack 2023 Demo';
-    description = 'A simple website built with Webpack using up-to-date packages.';
-    canonical = '/';
-    twitter.image = require('../../assets/images/thumbnail.png');
-    twitter.imageAlt = 'Webpack Logo';
-
-block hero
-  div.tga-hero.tga-under-construction-container
-    include _under_construction.pug
-    div.tga-hero-text
-      img.tga-hero-logo(
-        src=require('../../assets/images/tga-logo.svg')
-        alt='The Great Archives Logo'
-        height='100')
-      h1
-        span.tga-hero-title The Great Archives
-        span.tga-invisible= ' - '
-        span.tga-hero-subtitle Documenting the BIONICLE saga
-    ul.tga-hero-buttons
-      li
-        a(href='/encyclopedia/') Encyclopedia
-      li
-        a(href='/timeline/') Timeline
-      li
-        a(href='https://greg.thegreatarchives.com/') Official Greg Discussion Archive
-
-block content
-  main.tga-middle.tga-index-middle
-    div.tga-text-column.tga-home-text-column
-      p The Great Archives is a website that aims to serve as a comprehensive guide to the lore behind the LEGO Group's BIONICLE theme. This site includes an under-construction encyclopedia, a detailed timeline of events in the BIONICLE story, and a large archive of conversations with BIONICLE author Greg Farshtey. The purpose of this site is to document the BIONICLE saga, both by making hard-to-find content more accessible, and by making BIONICLE reference better, more accurate, and more complete.
-      div
-        a.tga-button(href='/about') Learn More
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title Hello World
+    meta(name='viewport'
+         content='width=device-width, initial-scale=1.0, user-scalable=1')
+  body
+    p Hello asfdasdfd

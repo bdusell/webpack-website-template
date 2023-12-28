@@ -1,9 +1,9 @@
 const autoprefixer = require('autoprefixer');
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-//const ESLintPlugin = require('eslint-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-//const UglifyWebpackPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 // TODO Take a look at
 // https://github.com/fqborges/webpack-fix-style-only-entries
@@ -17,13 +17,6 @@ exports.devServer = function({
   // See https://webpack.js.org/configuration/dev-server/#devserverhost
   host = '0.0.0.0',
   port = 8080,
-  // Show errors but not warnings in the browser.
-  // See https://webpack.js.org/configuration/dev-server/#overlay
-  overlay = {
-    errors: true,
-    warnings: false,
-    runtimeErrors: true
-  },
   ...options
 }) {
   // See https://webpack.js.org/guides/development/#using-webpack-dev-server
@@ -31,7 +24,15 @@ exports.devServer = function({
     devServer: {
       host,
       port,
-      overlay,
+      client: {
+        // Show errors but not warnings in the browser.
+        // See https://webpack.js.org/configuration/dev-server/#overlay
+        overlay: {
+          errors: true,
+          warnings: false,
+          runtimeErrors: true
+        }
+      },
       ...options
     }
   };
@@ -173,31 +174,19 @@ function loadCSS({
 exports.loadJavaScript = function({
   include,
   exclude,
+  cacheBabel = false,
   sourceMaps = true,
   minify = false,
   hash = false,
   polyfill = false,
   lint = true,
+  cacheEslint = false,
   eslintOptions = {}
 }) {
-  const loaders = [
-    {
-      loader: 'babel-loader',
-      options: {
-        sourceMaps: sourceMaps,
-        presets: [
-          [
-            '@babel/preset-env',
-            {
-              modules: false,
-              useBuiltIns: polyfill ? 'usage' : false,
-              corejs: 3
-            }
-          ]
-        ]
-      }
-    }
-  ];
+  // If polyfill is true, the following package is required:
+  //     npm install --save @babel/runtime-corejs3
+  // If polyfill is false, the following package is required:
+  //     npm install --save @babel/runtime
   const result = {
     module: {
       rules: [
@@ -205,40 +194,82 @@ exports.loadJavaScript = function({
           test: /\.js$/,
           include,
           exclude,
-          use: loaders
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                sourceMaps: sourceMaps,
+                presets: [
+                  [
+                    '@babel/preset-env',
+                    {
+                      // This sets the browser compatibility level to the
+                      // default settings used by browserslist.
+                      // See https://babeljs.io/docs/options#no-targets
+                      targets: 'defaults'
+                      // Because plugin-transform-runtime is used, the option
+                      // useBuiltIns must not be used here.
+                    }
+                  ]
+                ],
+                // This factors out some of Babel's boilerplate code into a
+                // single module.
+                // It also takes care of polyfilling ES6 constants and methods,
+                // and it does so in a way that does not pollute the global
+                // namespace.
+                // See https://webpack.js.org/loaders/babel-loader/#babel-is-injecting-helpers-into-each-file-and-bloating-my-code
+                // See https://babeljs.io/docs/babel-plugin-transform-runtime/
+                plugins: [
+                  [
+                    '@babel/plugin-transform-runtime',
+                    {
+                      corejs: 3
+                    }
+                  ]
+                ],
+                cacheDirectory: cacheBabel
+              }
+            }
+          ]
         }
       ]
+    },
+    output: {
+      // See https://webpack.js.org/guides/caching/#output-filenames
+      filename: hash ? '[name].[contenthash:8].js' : '[name].js',
+      chunkFilename: hash ? '[id].[contenthash:8].js' : '[name].js'
+    },
+    optimization: {
+      minimize: minify
     }
   };
   if(lint) {
-    result.plugins = [new ESLintPlugin({
-      cache: true,
-      context: '/',
-      files: include,
-      ...eslintOptions
-    })];
+    result.plugins = [
+      new ESLintPlugin({
+        cache: cacheEslint,
+        context: '/',
+        files: include,
+        ...eslintOptions
+      })
+    ];
   }
   if(minify) {
-    // TODO Switch to Terser
-    // https://webpack.js.org/guides/production/#minification
-    // Note that it is minified by default in production mode
-    result.optimization = {
-      minimizer: [new UglifyWebpackPlugin({
-        sourceMap: sourceMaps
-      })]
-    }
-  }
-  if(hash) {
-    // TODO [contenthash] for .js files
-    // https://webpack.js.org/guides/caching/#output-filenames
-    result.output = {
-      chunkFilename: '[name].[chunkhash:8].js',
-      filename: '[name].[chunkhash:8].js'
-    };
+    // See https://webpack.js.org/guides/production/#minification
+    result.optimization.minimizer = [
+      new TerserPlugin({
+        // Use esbuild, which is a fast minifier that preserves special
+        // comments.
+        // See https://webpack.js.org/plugins/terser-webpack-plugin/#esbuild
+        minify: TerserPlugin.esbuildMinify,
+        // TODO Make sure source maps work
+        // https://github.com/terser/terser?tab=readme-ov-file#source-map-options
+      })
+    ];
   }
   return result;
 };
 
+/*
 exports.loadImages = function({
   optimize = true,
   optimizeJpeg = true,
@@ -366,6 +397,7 @@ function loadFiles({
     }
   };
 };
+*/
 
 exports.loadPug = function() {
   return {
@@ -373,7 +405,7 @@ exports.loadPug = function() {
       rules: [
         {
           test: /\.pug$/,
-          use: ['pug-loader']
+          use: ['@webdiscus/pug-loader']
         }
       ]
     }
@@ -401,6 +433,7 @@ exports.loadHTML = function(options = {}) {
 exports.page = function({
   data = {},
   inject = false,
+  minifyHtml = false,
   ...options
 }) {
   // See https://webpack.js.org/guides/output-management/#setting-up-htmlwebpackplugin

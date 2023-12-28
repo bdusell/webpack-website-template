@@ -1,20 +1,21 @@
 const util = require('util');
 
-const commander = require('commander');
+const { program } = require('commander');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
 
 const constructWebpackConfig = require('./webpack.config.js');
 
-commander
+program
   .option('--production', 'Compile things in production mode.')
   .option('--watch', 'Watch input files and recompile when they change.')
   .option('--dev-server', 'Run the dev server.')
   .option('--inline', 'Use inline source maps.')
-  .option('--no-clean', 'Do not clean the output directory.')
-  .parse(process.argv);
+  .option('--no-clean', 'Do not clean the output directory.');
+program.parse();
+const args = program.opts();
 
-const isProduction = commander.production;
+const isProduction = args.production;
 const mode = isProduction ? 'production' : 'development';
 
 function handleException(err) {
@@ -45,15 +46,15 @@ function handleStats(stats, exit) {
 
 async function main() {
   const webpackConfig = await constructWebpackConfig(mode, {
-    inlineSourceMaps: commander.inline,
-    clean: commander.clean
+    inlineSourceMaps: args.inline,
+    clean: args.clean
   });
   // TODO are these needed for devServer?
   const watchOptions = {
     aggregateTimeout: 300,
     poll: false
   };
-  if(commander.devServer) {
+  if(args.devServer) {
     console.log('Running in dev server mode.');
     const devServerOptions = webpackConfig.devServer;
     const compiler = webpack(webpackConfig);
@@ -62,7 +63,7 @@ async function main() {
     server.startCallback(() => {
       console.log(`Started dev server on http://${host}:${port}`);
     });
-  } else if(commander.watch) {
+  } else if(args.watch) {
     console.log('Running in watch mode.');
     const compiler = webpack(webpackConfig);
     return new Promise((resolve, reject) => {

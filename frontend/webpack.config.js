@@ -1,13 +1,14 @@
 const path = require('path');
 
 const WebpackBar = require('webpackbar');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 
 const parts = require('./webpack.parts');
 
 const BASE_DIR = __dirname;
 const OUTPUT_DIR = path.join(BASE_DIR, 'dist');
 const HTML_DIR = path.join(BASE_DIR, 'src', 'html');
+const CSS_DIR = path.join(BASE_DIR, 'src', 'css');
 const JS_DIR = path.join(BASE_DIR, 'src', 'js');
 const ASSETS_DIR = path.join(BASE_DIR, 'assets');
 const IMAGES_DIR = path.join(BASE_DIR, 'assets', 'images');
@@ -133,14 +134,17 @@ module.exports = async function(mode, {
     parts.loadJavaScript({
       include: JS_DIR,
       exclude: NODE_MODULES_DIR,
+      cacheBabel: !isProduction,
       sourceMaps: !isProduction,
       minify: isProduction,
-      hash: true,
+      hash: isProduction,
       polyfill: true,
+      cacheEslint: !isProduction,
       eslintOptions: {
         failOnError: isProduction
       }
     }),
+    /*
     // Assets config
     parts.loadImages({
       include: IMAGES_DIR,
@@ -163,6 +167,7 @@ module.exports = async function(mode, {
       neverInline: true,
       hash: true
     }),
+    */
     // Configure the dev server
     parts.devServer({
       port: process.env.PORT,
@@ -204,6 +209,7 @@ module.exports = async function(mode, {
         // TODO Use eval-cheap-module-source-map
         // https://webpack.js.org/guides/build-performance/#devtool
         // https://webpack.js.org/guides/production/#source-mapping
+        // https://webpack.js.org/plugins/terser-webpack-plugin/#note-about-source-maps
         type: inlineSourceMaps ? 'inline-source-map' : 'eval-source-map'
       })
     ]);

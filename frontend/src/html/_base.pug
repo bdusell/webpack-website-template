@@ -1,9 +1,4 @@
 -
-  function toISODateTime(s) {
-    const { DateTime } = require('luxon');
-    return DateTime.fromISO(s).toFormat('yyyy-MM-dd');
-  }
--
   const _metadata = require('./metadata');
   const baseUrl = _metadata.baseUrl;
   // These are variables that can be used to configure this template by
@@ -17,6 +12,7 @@
   let image = null;
   let imageAlt = null;
   let isArticle = false;
+  // Note that datetimes need to be ISO 8601 strings.
   let articlePublishedAt = null;
   let articleModifiedAt = null;
   let articleAuthorTwitter = null;
@@ -89,16 +85,6 @@ block variables
 
   if(!(twitterCardType === 'summary' || twitterCardType === 'summary_large_image') {
     throw new Error(`\`twitter.cardType\` must be 'summary' or 'summary_large_image` (${debugTag})`);
-  }
-
-  // Articles
-  if(isArticle) {
-    if(articlePublishedAt != null) {
-      articlePublishedAt = toISODateTime(articlePublishedAt);
-    }
-    if(articleModifiedAt != null) {
-      articleModifiedAt = toISODateTime(articleModifiedAt);
-    }
   }
 doctype html
 //- Set the language of the page to English.
