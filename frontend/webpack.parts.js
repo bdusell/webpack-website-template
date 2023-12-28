@@ -24,6 +24,9 @@ exports.devServer = function({
     devServer: {
       host,
       port,
+      // Disable hot module reloading (HMR), because it does not live-reload
+      // HTML templates properly. (This took a really long time to figure out.)
+      hot: false,
       client: {
         // Show errors but not warnings in the browser.
         // See https://webpack.js.org/configuration/dev-server/#overlay
@@ -439,27 +442,8 @@ exports.page = function({
   injectTags = false
 }) {
   // See https://webpack.js.org/guides/output-management/#setting-up-htmlwebpackplugin
-  // If inject = false, then automatically wrap `data` in a function. The
-  // extra parameters are only accessible if `data` is a function.
   // See https://github.com/jantimon/html-webpack-plugin/blob/main/examples/template-parameters/webpack.config.js
   // See https://github.com/jantimon/html-webpack-plugin?tab=readme-ov-file#writing-your-own-templates
-  /*
-  if(injectTags === false && typeof data === 'object') {
-    const dataObject = data;
-    data = function(compilation, assets, assetTags, options) {
-      return {
-        compilation,
-        webpackConfig: compilation.options,
-        htmlWebpackPlugin: {
-          tags: assetTags,
-          files: assets,
-          options
-        },
-        ...dataObject
-      };
-    };
-  }
-  */
   return {
     plugins: [
       new HtmlWebpackPlugin({
