@@ -1,11 +1,14 @@
-doctype html
-html(lang='en')
-  head
-    meta(charset='utf-8')
-    title Hello World
-    meta(name='viewport'
-         content='width=device-width, initial-scale=1.0, user-scalable=1')
-    != htmlWebpackPlugin.tags.headTags
-  body
-    p Hello world fdsgsdfg
-    != htmlWebpackPlugin.tags.bodyTags
+extends ./_header_footer.pug
+
+block variables
+  -
+    title = _metadata.siteName;
+    description = 'A simple website built with Webpack using up-to-date packages.';
+    canonical = '/';
+    // TODO Add images
+    //image = require('../../assets/images/webpack-logo.png');
+    //imageAlt = 'Webpack Logo';
+
+block content
+  main
+    p This is an example paragraph.

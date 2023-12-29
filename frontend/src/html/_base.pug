@@ -1,9 +1,9 @@
 -
-  const _metadata = require('./metadata');
+  const _metadata = require('./_metadata');
   const baseUrl = _metadata.baseUrl;
   // These are variables that can be used to configure this template by
   // redefining them in the `variables` block.
-  // Note that in Webpack mode, images should be the result of a `require()`.
+  // Note that in Webpack mode, images should be the result of a require.
   // Note that Twitter cards are picky about the aspect ratio of the image.
   // See https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards
   let title = null;
@@ -11,8 +11,8 @@
   let canonical = null;
   let image = null;
   let imageAlt = null;
-  let isArticle = false;
   // Note that datetimes need to be ISO 8601 strings.
+  let isArticle = false;
   let articlePublishedAt = null;
   let articleModifiedAt = null;
   let articleAuthorTwitter = null;
@@ -35,9 +35,11 @@
     image: null,
     imageAlt: null
   };
+
 //- Override this block and assign values to the above variables to customize
 //- the behavior of this template.
 block variables
+
 -
   const debugTag = canonical || title;
 
@@ -83,9 +85,10 @@ block variables
     }
   }
 
-  if(!(twitterCardType === 'summary' || twitterCardType === 'summary_large_image') {
-    throw new Error(`\`twitter.cardType\` must be 'summary' or 'summary_large_image` (${debugTag})`);
+  if(!(twitter.cardType === 'summary' || twitter.cardType === 'summary_large_image')) {
+    throw new Error(`\`twitter.cardType\` must be \'summary\' or \'summary_large_image\' (${debugTag})`);
   }
+
 doctype html
 //- Set the language of the page to English.
 html(lang='en')
@@ -102,7 +105,7 @@ html(lang='en')
     //- See https://stackoverflow.com/questions/14389566/stop-css-transition-from-firing-on-page-load/42969608
     != htmlWebpackPlugin.tags.headTags
     //- This is where tags for Google Fonts can go.
-    block fonts
+    //-block fonts
       -
     //- Favicon.
     if favicon != null
