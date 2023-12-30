@@ -148,19 +148,13 @@ module.exports = async function(mode, {
       hash: true,
       outputPath: 'images/[path]'
     }),
+    */
     parts.loadFonts({
       include: FONTS_DIR,
       neverInline: true,
       hash: true,
       outputPath: 'fonts/'
     }),
-    parts.loadFiles({
-      include: ASSETS_DIR,
-      test: /\.pdf$/,
-      neverInline: true,
-      hash: true
-    }),
-    */
     // Configure the dev server
     parts.devServer({
       port: process.env.PORT

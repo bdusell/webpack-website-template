@@ -248,7 +248,9 @@ exports.loadJavaScript = function({
     output: {
       // See https://webpack.js.org/guides/caching/#output-filenames
       filename: hash ? '[name].[contenthash:8].js' : '[name].js',
-      chunkFilename: hash ? '[id].[contenthash:8].js' : '[name].js'
+      // TODO Is there a way to use just the hash and no id? The id is very
+      // long.
+      chunkFilename: hash ? '[id].[contenthash:8].js' : '[id].js'
     },
     optimization: {
       minimize: minify
@@ -298,8 +300,6 @@ exports.loadImages = function({
   ...options
 }) {
   // See https://webpack.js.org/guides/asset-management/#loading-images
-  // TODO Use asset/resource instead?
-  // Make everything lossless and progressive/interlaced.
   const imageLoaderOptions = {
     mozjpeg: {
       enabled: optimizeJpeg,
@@ -342,6 +342,7 @@ exports.loadImages = function({
       []
   });
 };
+*/
 
 exports.loadFonts = function(options) {
   // See https://webpack.js.org/guides/asset-management/#loading-fonts
@@ -352,49 +353,48 @@ exports.loadFonts = function(options) {
   });
 };
 
-exports.loadFiles = loadFiles;
-
 function loadFiles({
+  test,
   include,
-  context = include,
   exclude,
   inlineSizeLimit,
   neverInline = false,
   alwaysInline = false,
   hash = true,
-  test,
   additionalLoaders = [],
   outputPath = '[path]'
 }) {
-  const name = outputPath + (
-    hash ?
-    '[name].[hash:8].[ext]' :
-    '[name].[ext]'
-  );
-  const loaders = [];
-  const fileLoaderOptions = {
-    name,
-    context
-  };
-  if(neverInline) {
-    loaders.push({
-      loader: 'file-loader',
-      options: fileLoaderOptions
-    });
-  } else {
-    const urlLoaderOptions = {
-      fallback: 'file-loader',
-      ...fileLoaderOptions
-    };
-    if(!alwaysInline) {
-      urlLoaderOptions.limit = inlineSizeLimit;
-    }
-    loaders.push({
-      loader: 'url-loader',
-      urlLoaderOptions
-    });
+  if(neverInline && alwaysInline) {
+    throw new Error('neverInline and alwaysInline cannot both be true');
   }
-  loaders.push(...additionalLoaders);
+  let assetOptions;
+  if(alwaysInline) {
+    assetOptions = { type: 'asset/inline' };
+  } else {
+    const outputOptions = {
+      generator: {
+        filename: outputPath + (
+          hash ?
+          '[name].[hash:8][ext]' :
+          '[name][ext]'
+        )
+      }
+    };
+    if(neverInline) {
+      assetOptions = {
+        type: 'asset/resource',
+        ...outputOptions
+      };
+    } else {
+      assetOptions = {
+        type: 'asset',
+        dataUrlCondition: {
+          maxSize: inlineSizeLimit
+        },
+        ...outputOptions
+      };
+    }
+  }
   return {
     module: {
       rules: [
@@ -402,13 +402,15 @@ function loadFiles({
           test,
           include,
           exclude,
-          use: loaders
+          use: additionalLoaders,
+          ...assetOptions
         }
       ]
     }
   };
 };
-*/
+
+exports.loadFiles = loadFiles;
 
 exports.loadPug = function() {
   return {
