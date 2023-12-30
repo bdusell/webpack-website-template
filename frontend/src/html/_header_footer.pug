@@ -1,28 +1,30 @@
 extends ./_base.pug
 
 block body
-  header.site-header-container
-    nav.site-header-bar
-      a.site-home-link(href='/')= _metadata.siteName
-      div.site-menu-container
-        button#site-side-menu-button.site-side-menu-button(type='button')
-          span
-            span.icon.icon-menu
-        ul#site-side-menu.site-side-menu
-          li
-            a(href='/blog/') Blog
-          li
-            a(href='/about') About
-          li.site-hide
+  div.site-page-container
+    header.site-header-container
+      nav.site-header-bar
+        a.site-home-link(href='/')= _metadata.siteName
+        div.site-menu-container
+          button#site-side-menu-button.site-side-menu-button(type='button')
+            span
+              span.icon.icon-menu
+          ul#site-side-menu.site-side-menu
+            li
+              a(href='/blog/') Blog
+            li
+              a(href='/about') About
+            li.site-hide
+              a(href=`https://twitter.com/${_metadata.siteTwitterAccount}` target='_blank')
+                span.icon.icon-twitter
+                span= `@${_metadata.siteTwitterAccount}`
+          div.site-social-bar
             a(href=`https://twitter.com/${_metadata.siteTwitterAccount}` target='_blank')
               span.icon.icon-twitter
-              span= `@${_metadata.siteTwitterAccount}`
-        div.site-social-bar
-          a(href=`https://twitter.com/${_metadata.siteTwitterAccount}` target='_blank')
-            span.icon.icon-twitter
-  block content
-  footer.site-footer
-    div.site-social-media-links
-      a(href=`https://twitter.com/${_metadata.siteTwitterAccount}` target='_blank')
-        span.icon.icon-twitter
-        span.site-link-underline= `@${_metadata.siteTwitterAccount}`
+    div.site-page-middle
+      block content
+    footer.site-footer
+      div.site-social-media-links
+        a(href=`https://twitter.com/${_metadata.siteTwitterAccount}` target='_blank')
+          span.icon.icon-twitter
+          span.site-link-underline= `@${_metadata.siteTwitterAccount}`

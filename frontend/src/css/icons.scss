@@ -28,6 +28,11 @@ $icomoon-font-path: '../../assets/fonts';
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-twitter {
+  &:before {
+    content: $icon-twitter; 
+  }
+}
 .icon-menu {
   &:before {
     content: $icon-menu; 

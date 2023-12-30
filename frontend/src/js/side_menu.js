@@ -25,5 +25,5 @@ function initToggle($menu, $button, className) {
 }
 
 $(function() {
-  initToggle($('#tga-side-menu'), $('#tga-side-menu-button'), 'x-open');
+  initToggle($('#site-side-menu'), $('#site-side-menu-button'), 'x-open');
 });

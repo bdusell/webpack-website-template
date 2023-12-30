@@ -15,23 +15,37 @@ html {
 }
 
 .site-header-bar {
+  $box-shadow-size: 4px;
+  $extra-horiz-offset: $box-shadow-size;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   min-width: 0;
-  box-shadow: 0 2px 4px rgba(black, 0.8);
-  width: 100%;
   position: fixed;
   top: 0;
-  left: 0;
-  right: 0;
+  // Make the header bar go off-screen a little bit so the drop shadow is even
+  // at the edges.
+  left: -$extra-horiz-offset;
+  right: -$extra-horiz-offset;
+  padding-left: $extra-horiz-offset;
+  padding-right: $extra-horiz-offset;
   z-index: $header-z-index;
 
   height: $header-height-mobile;
   @media (min-width: $responsive-desktop-width) {
     height: $header-height-desktop;
   }
+
+  color: $header-fg-color;
+  background-color: $header-bg-color;
+  a, button {
+    transition: color $general-color-trans-duration;
+    &:hover {
+      color: $header-active-fg-color;
+    }
+  }
+  box-shadow: 0 2px $box-shadow-size rgba(black, 0.8);
 }
 
 .site-side-menu-button {
@@ -81,7 +95,21 @@ html {
     z-index: initial;
     width: auto;
     max-width: none;
+    // This prevents weird things from happening when the width increases
+    // while the side menu is open.
+    &.x-open {
+      transform: none;
+      transition: none;
+    }
   }
+
+  color: $side-menu-fg-color;
+  a, button {
+    &:active {
+      color: $side-menu-active-fg-color;
+    }
+  }
+  background-color: $side-menu-bg-color;
 
   li {
     display: block;
@@ -133,11 +161,6 @@ html {
     flex-direction: row;
     align-items: center;
     height: 100%;
-
-    transition: color $general-color-trans-duration;
-    &:hover {
-      color: $general-active-fg-color;
-    }
   }
 }
 
@@ -162,11 +185,6 @@ html {
 .site-home-link {
   display: flex;
   align-items: center;
-  padding: 0 8px;
+  padding: 0 16px;
   height: 100%;
-
-  transition: color $general-color-trans-duration;
-  &:hover {
-    color: $general-active-fg-color;
-  }
 }

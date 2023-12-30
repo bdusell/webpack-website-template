@@ -1,7 +1,7 @@
 // Responsive layout thresholds.
 $responsive-desktop-width: 800px;
 
-// General width settings.
+// General settings.
 $general-column-max-width: 1000px;
 $general-side-padding: 10px;
 $general-color-trans-duration: 0.2s;
@@ -13,15 +13,22 @@ $header-height-desktop: 40px;
 $header-height-mobile: 50px;
 $header-links-gutter: 10px;
 $header-social-links-gutter: 5px;
+$header-fg-color: white;
+$header-active-fg-color: darken($header-fg-color, 15%);
+$header-bg-color: #294ed7;
 
 // Footer.
 $footer-height: 100px;
-$footer-bg-color: #202126;
+$footer-fg-color: black;
+$footer-bg-color: #bdbdbd;
 
 // Side menu.
 $side-menu-max-width: 300px;
-$side-menu-top-sep-color: darken(white, 10%);
-$side-menu-bottom-sep-color: darken(white, 20%);
+$side-menu-fg-color: white;
+$side-menu-active-fg-color: darken($side-menu-fg-color, 15%);
+$side-menu-bg-color: lighten(black, 20%);
+$side-menu-top-sep-color: lighten($side-menu-bg-color, 15%);
+$side-menu-bottom-sep-color: darken($side-menu-bg-color, 15%);
 
 // z-indexes
 $header-z-index: 2;
