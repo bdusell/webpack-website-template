@@ -282,7 +282,6 @@ exports.loadJavaScript = function({
   return result;
 };
 
-/*
 exports.loadImages = function({
   optimize = true,
   optimizeJpeg = true,
@@ -307,7 +306,7 @@ exports.loadImages = function({
       progressive: progressiveJpeg
     },
     optipng: {
-      enabled: optimizePng && interlacePng,
+      enabled: optimizePng || interlacePng,
       optimizationLevel: 0,
       bitDepthReduction: false,
       colorTypeReduction: false,
@@ -342,7 +341,6 @@ exports.loadImages = function({
       []
   });
 };
-*/
 
 exports.loadFonts = function(options) {
   // See https://webpack.js.org/guides/asset-management/#loading-fonts
@@ -388,8 +386,10 @@ function loadFiles({
     } else {
       assetOptions = {
         type: 'asset',
-        dataUrlCondition: {
-          maxSize: inlineSizeLimit
+        parser: {
+          dataUrlCondition: {
+            maxSize: inlineSizeLimit
+          }
         },
         ...outputOptions
       };

@@ -137,7 +137,6 @@ module.exports = async function(mode, {
         failOnError: isProduction
       }
     }),
-    /*
     // Assets config
     parts.loadImages({
       include: IMAGES_DIR,
@@ -145,15 +144,14 @@ module.exports = async function(mode, {
       optimize: isProduction,
       // Let zopflipng take care of optimizing pngs.
       optimizePng: false,
-      hash: true,
+      hash: isProduction,
       outputPath: 'images/[path]'
     }),
-    */
     parts.loadFonts({
       include: FONTS_DIR,
       neverInline: true,
       hash: true,
-      outputPath: 'fonts/'
+      outputPath: 'fonts/[path]'
     }),
     // Configure the dev server
     parts.devServer({

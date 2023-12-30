@@ -33,6 +33,12 @@ body {
     margin: 8px 0;
   }
 
+  img {
+    display: block;
+    margin: 0 auto;
+    max-width: 100%;
+  }
+
   ol, ul {
     margin-left: 2em;
   }
@@ -47,4 +53,5 @@ body {
   a {
     text-decoration: underline;
   }
+
 }
