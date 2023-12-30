@@ -1,5 +1,9 @@
 @import './_variables';
 
+body {
+  background-color: $general-bg-color;
+}
+
 .site-page-container {
   display: flex;
   flex-direction: column;
@@ -22,7 +26,17 @@
 }
 
 .site-content {
+  font-family: $general-font-family;
+  color: $general-fg-color;
+
   p {
     margin: 8px 0;
+  }
+
+  a, button {
+    transition: color $general-color-trans-duration;
+    &:hover {
+      color: $general-active-fg-color;
+    }
   }
 }
