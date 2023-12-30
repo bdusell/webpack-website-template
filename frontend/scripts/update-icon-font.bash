@@ -4,7 +4,13 @@ set -o pipefail
 
 zipfile=${1-}
 if ! shift 1; then
-  echo "Usage: $0 <zip-file>" 2>&1
+  echo "Usage: $0 <zip-file>
+
+This script assumes that <zip-file> is a file downloaded from the IcoMoon App:
+https://icomoon.io/app/
+
+It assumes that the font has been named \"icons\".
+" 2>&1
   exit 1
 fi
 
