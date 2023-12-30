@@ -68,7 +68,10 @@ module.exports = async function(mode, {
   let result = merge([
     // Targets
     pages([
-      'index'
+      'index',
+      'blog/index',
+      'blog/first-post',
+      'about'
     ], {
       data: {
         useGoogleAnalytics: isProduction
@@ -160,13 +163,7 @@ module.exports = async function(mode, {
     */
     // Configure the dev server
     parts.devServer({
-      port: process.env.PORT,
-      historyApiFallback: {
-        rewrites: [
-          { from: /^.*\/$/, to: c => `/${c.match[0]}index.html` },
-          { from: /^.*$/, to: c => `/${c.match[0]}.html` }
-        ]
-      }
+      port: process.env.PORT
     }),
     // Progress messages
     {

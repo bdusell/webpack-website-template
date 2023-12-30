@@ -36,6 +36,14 @@ exports.devServer = function({
           runtimeErrors: true
         }
       },
+      // Don't use the .html suffix in URLs. Automatically route URLs ending
+      // in / to an index.html file, and all other URLs to a .html file.
+      historyApiFallback: {
+        rewrites: [
+          { from: /^.*\/$/, to: c => `${c.match[0]}index.html` },
+          { from: /^.*$/, to: c => `${c.match[0]}.html` }
+        ]
+      },
       ...options
     }
   };

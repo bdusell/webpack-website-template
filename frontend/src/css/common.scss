@@ -29,8 +29,12 @@ body {
   font-family: $general-font-family;
   color: $general-fg-color;
 
-  p {
+  p, ol, ul {
     margin: 8px 0;
+  }
+
+  ol, ul {
+    margin-left: 2em;
   }
 
   a, button {
@@ -38,5 +42,9 @@ body {
     &:hover {
       color: $general-active-fg-color;
     }
+  }
+
+  a {
+    text-decoration: underline;
   }
 }

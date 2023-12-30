@@ -1,0 +1,14 @@
+extends ../_header_footer.pug
+
+block variables
+  -
+    title = 'Blog';
+    description = 'List of blog posts.';
+    canonical = '/blog/';
+
+block content
+  main.site-main-column.site-content
+    h1 Blog
+    ul
+      li
+        a(href='/blog/first-post') First Post
