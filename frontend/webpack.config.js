@@ -26,16 +26,11 @@ const NODE_MODULES_DIR = path.join(BASE_DIR, 'node_modules');
 // https://webpack.js.org/guides/build-performance/#persistent-cache
 // https://webpack.js.org/configuration/cache/
 
-// TODO No hashing in development mode
-// https://webpack.js.org/guides/build-performance/#avoid-production-specific-tooling
-
 // TODO Enable tree shaking in production
 // https://webpack.js.org/guides/tree-shaking/#conclusion
 
 // TODO testing with Mocha
 // https://webpack.js.org/guides/integrations/#mocha
-
-// TODO polyfill core-js?
 
 function page(name, { minifyHtml, data } = {}) {
   return merge([
@@ -71,7 +66,8 @@ module.exports = async function(mode, {
       'index',
       'blog/index',
       'blog/first-post',
-      'about'
+      'about',
+      'subdir/relative-url-in-sass'
     ], {
       data: {
         useGoogleAnalytics: isProduction

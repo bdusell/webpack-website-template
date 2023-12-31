@@ -1,0 +1,5 @@
+// The purpose of this file is to verify that relative URLs are resolved
+// relative to the location of the .scss file it is used in, thanks to
+// resolve-url-loader. This example does not work without resolve-url-loader.
+
+@import 'anotherdir/partial';

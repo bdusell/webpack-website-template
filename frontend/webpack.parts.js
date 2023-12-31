@@ -63,6 +63,8 @@ exports.loadSass = function({
 }) {
   // NOTE There is an issue when using `thread-loader`.
   // See https://webpack.js.org/guides/build-performance/#sass
+  // NOTE It is possible to inject variables using `additionalData`.
+  // See https://github.com/webpack-contrib/sass-loader?tab=readme-ov-file#additionaldata
   return loadCSS({
     ...options,
     test: allowCSS ? /\.s?css$/ : /\.scss$/,
@@ -82,8 +84,6 @@ exports.loadSass = function({
           // resolve-url-loader.
           // See https://www.npmjs.com/package/resolve-url-loader#configure-webpack
           sourceMap: true
-          // TODO Add option to inject variables using `additionalData`.
-          // See https://github.com/webpack-contrib/sass-loader?tab=readme-ov-file#additionaldata
         }
       }
     ]
@@ -298,6 +298,7 @@ exports.loadImages = function({
   interlaceGif = false,
   ...options
 }) {
+  // TODO Change package for optimizing images
   // See https://webpack.js.org/guides/asset-management/#loading-images
   const imageLoaderOptions = {
     mozjpeg: {

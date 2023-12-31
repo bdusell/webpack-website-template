@@ -1,0 +1,12 @@
+extends ../_header_footer.pug
+
+block variables
+  -
+    title = 'Relative URL in Sass';
+    description = 'A test.';
+    canonical = '/subdir/relative-url-in-sass';
+
+block content
+  main.site-main-column.site-content
+    p The Sass logo should be displayed below:
+    div.site-relative-url-in-sass
