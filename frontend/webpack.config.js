@@ -69,7 +69,8 @@ module.exports = async function(mode, {
       'blog/first-post',
       'about',
       'subdir/relative-url-in-sass',
-      'babel-test'
+      'babel-test',
+      'images-test'
     ], {
       data: {
         useGoogleAnalytics: isProduction

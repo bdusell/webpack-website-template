@@ -152,17 +152,11 @@ function loadCSS({
     // https://webpack.js.org/plugins/mini-css-extract-plugin/#minimizing-for-production
     minifyOptions = {
       optimization: {
+        minimize: true,
         minimizer: [
           new CssMinimizerPlugin({
             minimizerOptions: {
-              preset: [
-                'default',
-                {
-                  discardComments: {
-                    removeAll: true
-                  }
-                }
-              ]
+              preset: ['default']
             }
           })
         ]
@@ -192,6 +186,7 @@ exports.loadJavaScript = function({
   cacheBabel = false,
   sourceMaps = true,
   minify = false,
+  separateCommentsFile = true,
   hash = false,
   polyfill = false,
   lint = true,
@@ -246,9 +241,6 @@ exports.loadJavaScript = function({
       // TODO Is there a way to use just the hash and no id? The id is very
       // long.
       chunkFilename: hash ? '[id].[contenthash:8].js' : '[id].js'
-    },
-    optimization: {
-      minimize: minify
     }
   };
   if(lint) {
@@ -263,16 +255,25 @@ exports.loadJavaScript = function({
   }
   if(minify) {
     // See https://webpack.js.org/guides/production/#minification
-    result.optimization.minimizer = [
-      new TerserPlugin({
-        // Use esbuild, which is a fast minifier that preserves special
-        // comments.
-        // See https://webpack.js.org/plugins/terser-webpack-plugin/#esbuild
-        minify: TerserPlugin.esbuildMinify,
-        // TODO Make sure source maps work
-        // https://github.com/terser/terser?tab=readme-ov-file#source-map-options
-      })
-    ];
+    let extractComments;
+    if(separateCommentsFile) {
+      extractComments = {
+        condition: true,
+        banner: commentsFile => `License information: ${commentsFile}`
+      };
+    } else {
+      extractComments = false;
+    }
+    result.optimization = {
+      minimize: true,
+      minimizer: [
+        new TerserPlugin({
+          extractComments
+          // TODO Make sure source maps work
+          // https://github.com/terser/terser?tab=readme-ov-file#source-map-options
+        })
+      ]
+    };
   }
   return result;
 };
@@ -457,6 +458,7 @@ exports.page = function({
         template: template,
         templateParameters: data,
         inject: injectTags,
+        chunks,
         minify: minifyHtml ?
           // See https://github.com/terser/html-minifier-terser?tab=readme-ov-file#options-quick-reference
           {
