@@ -92,6 +92,7 @@ exports.loadSass = function({
 
 const _autoprefixer = autoprefixer;
 
+// NOTE Autoprefixer automatically reads the file `.browserslistrc`.
 function loadCSS({
   separateFile = true,
   autoprefixer = true,
@@ -117,7 +118,9 @@ function loadCSS({
       {
         loader: 'postcss-loader',
         options: {
-          plugins: postcssPlugins,
+          postcssOptions: {
+            plugins: postcssPlugins
+          },
           sourceMap: sourceMaps
         }
       },

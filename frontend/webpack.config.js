@@ -169,6 +169,7 @@ module.exports = async function(mode, {
       result,
       {
         optimization: {
+          // TODO Keep this?
           splitChunks: {
             name: false
           }
