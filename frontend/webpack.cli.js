@@ -46,6 +46,7 @@ function handleStats(stats, exit) {
 
 async function main() {
   const webpackConfig = await constructWebpackConfig(mode, {
+    usesNginx: !args.devServer,
     inlineSourceMaps: args.inline,
     clean: args.clean
   });

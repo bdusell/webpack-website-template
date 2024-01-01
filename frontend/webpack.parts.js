@@ -185,6 +185,7 @@ function loadCSS({
   };
 }
 
+// NOTE Babel automatically reads the file `.browserslistrc`.
 exports.loadJavaScript = function({
   include,
   exclude,
@@ -213,19 +214,10 @@ exports.loadJavaScript = function({
               loader: 'babel-loader',
               options: {
                 sourceMaps: sourceMaps,
-                presets: [
-                  [
-                    '@babel/preset-env',
-                    {
-                      // This sets the browser compatibility level to the
-                      // default settings used by browserslist.
-                      // See https://babeljs.io/docs/options#no-targets
-                      targets: 'defaults'
-                      // Because plugin-transform-runtime is used, the option
-                      // useBuiltIns must not be used here.
-                    }
-                  ]
-                ],
+                // NOTE By default, Babel targets the oldest browsers possible,
+                // which likely generates more code than necessary. This can be
+                // adjusted with the file `.browserslistrc`.
+                presets: ['@babel/preset-env'],
                 // This factors out some of Babel's boilerplate code into a
                 // single module.
                 // It also takes care of polyfilling ES6 constants and methods,

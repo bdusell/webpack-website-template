@@ -95,18 +95,15 @@ html(lang='en')
   head
     //- Indicate that the encoding of the document is UTF-8.
     meta(charset='utf-8')
+    //- This is where the <link> tags for the CSS will go.
+    //- See https://stackoverflow.com/questions/14389566/stop-css-transition-from-firing-on-page-load/42969608
+    != htmlWebpackPlugin.tags.headTags
     title= title
     if description != null
       meta(name='description' content=description)
     //- Make sure the web page isn't shown zoomed-out on mobile devices.
     meta(name='viewport'
          content='width=device-width, initial-scale=1.0, user-scalable=1')
-    //- This is where the <link> tags for the CSS will go.
-    //- See https://stackoverflow.com/questions/14389566/stop-css-transition-from-firing-on-page-load/42969608
-    != htmlWebpackPlugin.tags.headTags
-    //- This is where tags for Google Fonts can go.
-    //-block fonts
-      -
     //- Favicon.
     if favicon != null
       link(rel='shortcut icon' href=favicon)

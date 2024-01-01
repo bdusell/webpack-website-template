@@ -54,6 +54,7 @@ function pages(names, options) {
 }
 
 module.exports = async function(mode, {
+  usesNginx,
   inlineSourceMaps,
   clean
 }) {
@@ -67,7 +68,8 @@ module.exports = async function(mode, {
       'blog/index',
       'blog/first-post',
       'about',
-      'subdir/relative-url-in-sass'
+      'subdir/relative-url-in-sass',
+      'babel-test'
     ], {
       data: {
         useGoogleAnalytics: isProduction
@@ -113,11 +115,10 @@ module.exports = async function(mode, {
     // CSS config
     parts.loadSass({
       include: CSS_DIR,
-      separateFile: isProduction,
-      autoprefixer: isProduction,
+      autoprefixer: true,
       sourceMaps: !isProduction,
       minify: isProduction,
-      hash: isProduction
+      hash: usesNginx
     }),
     // JS config
     parts.loadJavaScript({
@@ -126,7 +127,7 @@ module.exports = async function(mode, {
       cacheBabel: !isProduction,
       sourceMaps: !isProduction,
       minify: isProduction,
-      hash: isProduction,
+      hash: usesNginx,
       polyfill: true,
       cacheEslint: !isProduction,
       eslintOptions: {
@@ -140,13 +141,13 @@ module.exports = async function(mode, {
       optimize: isProduction,
       // Let zopflipng take care of optimizing pngs.
       optimizePng: false,
-      hash: isProduction,
+      hash: usesNginx,
       outputPath: 'images/[path]'
     }),
     parts.loadFonts({
       include: FONTS_DIR,
       neverInline: true,
-      hash: true,
+      hash: usesNginx,
       outputPath: 'fonts/[path]'
     }),
     // Configure the dev server
