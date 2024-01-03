@@ -2,12 +2,10 @@ const autoprefixer = require('autoprefixer');
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-
-// TODO Take a look at
-// https://github.com/fqborges/webpack-fix-style-only-entries
-// for getting rid of superfluous JS files when only importing CSS files.
+const { merge } = require('webpack-merge');
 
 // TODO Add `include` directory to everything, and print warning when it is missing.
 // https://webpack.js.org/guides/build-performance/#loaders
@@ -279,65 +277,129 @@ exports.loadJavaScript = function({
 };
 
 exports.loadImages = function({
+  loadJpeg = false,
+  loadPng = false,
+  loadGif = false,
+  loadSvg = false,
   optimize = true,
-  optimizeJpeg = true,
-  losslessJpeg = true,
-  jpegQuality,
+  optimizeJpeg = null,
+  optimizePng = null,
+  optimizeGif = null,
+  optimizeSvg = null,
+  lossless = true,
+  losslessJpeg = null,
+  losslessPng = null,
   progressiveJpeg = true,
-  optimizePng = true,
-  losslessPng = true,
-  pngQuality,
-  interlacePng = false,
-  removePngMetadata = true,
-  optimizeSvg = true,
-  optimizeGif = true,
-  interlaceGif = false,
+  progressivePng = false,
+  progressiveGif = false,
+  jpegOptions = {},
+  pngOptions = {},
+  gifOptions = {},
+  svgOptions = {},
   ...options
 }) {
-  // TODO Change package for optimizing images
-  // See https://webpack.js.org/guides/asset-management/#loading-images
-  const imageLoaderOptions = {
-    mozjpeg: {
-      enabled: optimizeJpeg,
-      quality: losslessJpeg ? 100 : jpegQuality,
-      progressive: progressiveJpeg
-    },
-    optipng: {
-      enabled: optimizePng || interlacePng,
-      optimizationLevel: 0,
-      bitDepthReduction: false,
-      colorTypeReduction: false,
-      paletteReduction: false,
-      interlaced: interlacePng
-    },
-    pngquant: {
-      enabled: optimizePng,
-      strip: removePngMetadata,
-      quality: losslessPng ? [1, 1] : pngQuality,
-      dithering: losslessPng ? false : 1
-    },
-    svgo: {
-      enabled: optimizeSvg
-    },
-    gifsicle: {
-      enabled: optimizeGif,
-      interlaced: interlaceGif,
-      optimizationLevel: 3
+  if(optimizeJpeg == null) optimizeJpeg = optimize;
+  if(optimizePng == null) optimizePng = optimize;
+  if(optimizeGif == null) optimizeGif = optimize;
+  if(optimizeSvg == null) optimizeSvg = optimize;
+  if(losslessJpeg == null) losslessJpeg = lossless;
+  if(losslessPng == null) losslessPng = lossless;
+
+  const unoptimizedFormats = [];
+  const sharpFormats = [];
+  const svgoFormats = [];
+  if(loadJpeg) {
+    (optimizeJpeg ? sharpFormats : unoptimizedFormats).push('jpg');
+  }
+  if(loadPng) {
+    (optimizePng ? sharpFormats : unoptimizedFormats).push('png');
+  }
+  if(loadGif) {
+    (optimizeGif ? sharpFormats : unoptimizedFormats).push('gif');
+  }
+  if(loadSvg) {
+    (optimizeSvg ? svgoFormats : unoptimizedFormats).push('svg');
+  }
+
+  const configs = [];
+  if(unoptimizedFormats.length > 0) {
+    configs.push(loadFiles({
+      ...options,
+      test: getImageTester(unoptimizedFormats)
+    }));
+  }
+  if(sharpFormats.length > 0) {
+    // See https://github.com/webpack-contrib/image-minimizer-webpack-plugin?tab=readme-ov-file#optimize-with-sharp
+    const encodeOptions = {};
+    if(loadJpeg && optimizeJpeg) {
+      jpegOptions = { ...jpegOptions };
+      if(losslessJpeg) jpegOptions.quality = 100;
+      jpegOptions.progressive = progressiveJpeg;
+      encodeOptions.jpeg = jpegOptions;
     }
-  };
-  return loadFiles({
-    ...options,
-    test: /\.(gif|png|jpe?g|svg|webp)$/,
-    additionalLoaders: optimize ?
-      [
+    if(loadPng && optimizePng) {
+      pngOptions = { ...pngOptions };
+      if(losslessPng) pngOptions.quality = 100;
+      pngOptions.progressive = progressivePng;
+      encodeOptions.png = pngOptions;
+    }
+    if(loadGif && optimizeGif) {
+      gifOptions = { ...gifOptions };
+      gifOptions.progressive = progressiveGif;
+      encodeOptions.gif = gifOptions;
+    }
+    configs.push(loadFiles({
+      ...options,
+      test: getImageTester(sharpFormats),
+      additionalLoaders: [
         {
-          loader: 'image-webpack-loader',
-          options: imageLoaderOptions
+          loader: ImageMinimizerPlugin.loader,
+          options: {
+            minimizer: {
+              implementation: ImageMinimizerPlugin.sharpMinify,
+              options: {
+                encodeOptions
+              }
+            }
+          }
         }
-      ] :
-      []
-  });
+      ]
+    }));
+  }
+  if(svgoFormats.length > 0) {
+    // See https://github.com/webpack-contrib/image-minimizer-webpack-plugin?tab=readme-ov-file#optimize-with-svgo
+    configs.push(loadFiles({
+      ...options,
+      test: getImageTester(svgoFormats),
+      additionalLoaders: [
+        {
+          loader: ImageMinimizerPlugin.loader,
+          options: {
+            minimizer: {
+              implementation: ImageMinimizerPlugin.svgoMinify,
+              options: {
+                encodeOptions: {
+                  multipass: true,
+                  plugins: ['preset-default'],
+                  ...svgOptions
+                }
+              }
+            }
+          }
+        }
+      ]
+    }));
+  }
+  return merge(configs);
 };
+
+function getImageTester(formats) {
+  return new RegExp(`\.(?:${formats.map(getFormatRegexp).join('|')})$`);
+}
+
+function getFormatRegexp(format) {
+  return format === 'jpg' ? 'jpe?g' : format;
+}
 
 exports.loadFonts = function(options) {
   // See https://webpack.js.org/guides/asset-management/#loading-fonts

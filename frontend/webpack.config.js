@@ -138,12 +138,16 @@ module.exports = async function(mode, {
     // Assets config
     parts.loadImages({
       include: IMAGES_DIR,
+      loadJpeg: true,
+      loadPng: true,
+      loadGif: true,
+      loadSvg: true,
+      outputPath: 'images/[path]',
       neverInline: true,
+      hash: usesNginx,
       optimize: isProduction,
       // Let zopflipng take care of optimizing pngs.
-      optimizePng: false,
-      hash: usesNginx,
-      outputPath: 'images/[path]'
+      optimizePng: false
     }),
     parts.loadFonts({
       include: FONTS_DIR,
