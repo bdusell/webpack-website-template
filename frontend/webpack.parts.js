@@ -4,6 +4,7 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const { merge } = require('webpack-merge');
 
@@ -413,13 +414,14 @@ exports.loadFonts = function(options) {
 function loadFiles({
   test,
   include,
+  context = include,
   exclude,
+  outputDir = '.',
   inlineSizeLimit,
   neverInline = false,
   alwaysInline = false,
   hash = true,
-  additionalLoaders = [],
-  outputPath = '[path]'
+  additionalLoaders = []
 }) {
   if(neverInline && alwaysInline) {
     throw new Error('neverInline and alwaysInline cannot both be true');
@@ -430,11 +432,29 @@ function loadFiles({
   } else {
     const outputOptions = {
       generator: {
-        filename: outputPath + (
-          hash ?
-          '[name].[hash:8][ext]' :
-          '[name][ext]'
-        )
+        // Webpack 5 does not support a `context` option that strips parent
+        // directories from the filename. So, we have to reimplement that
+        // behavior ourselves.
+        // See https://stackoverflow.com/questions/69138588/webpack-5-path-context
+        filename: options => {
+          const originalPath = options.module.request;
+          const pathInfo = path.posix.parse(originalPath);
+          const originalDir = pathInfo.dir;
+          if(!originalDir.startsWith(context)) {
+            throw new Error(`path ${originalDir} does not start with context ${context}`);
+          }
+          const fileOutputDir = originalDir.slice(context.length);
+          let hashPart;
+          if(hash) {
+            const fullHash = options.contentHash;
+            const hashLength = 8;
+            const partialHash = fullHash.slice(0, hashLength);
+            hashPart = `.${partialHash}`;
+          } else {
+            hashPart = '';
+          }
+          return `${outputDir}${fileOutputDir}/${pathInfo.name}${hashPart}${pathInfo.ext}`;
+        }
       }
     };
     if(neverInline) {

@@ -142,7 +142,7 @@ module.exports = async function(mode, {
       loadPng: true,
       loadGif: true,
       loadSvg: true,
-      outputPath: 'images/[path]',
+      outputDir: 'images',
       neverInline: true,
       hash: usesNginx,
       optimize: isProduction,
@@ -153,7 +153,7 @@ module.exports = async function(mode, {
       include: FONTS_DIR,
       neverInline: true,
       hash: usesNginx,
-      outputPath: 'fonts/[path]'
+      outputDir: 'fonts'
     }),
     // Configure the dev server
     parts.devServer({
