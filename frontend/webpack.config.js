@@ -10,6 +10,7 @@ const OUTPUT_DIR = path.join(BASE_DIR, 'dist');
 const HTML_DIR = path.join(BASE_DIR, 'src', 'html');
 const CSS_DIR = path.join(BASE_DIR, 'src', 'css');
 const JS_DIR = path.join(BASE_DIR, 'src', 'js');
+const COPY_DIR = path.join(BASE_DIR, 'src', 'copy');
 const ASSETS_DIR = path.join(BASE_DIR, 'assets');
 const IMAGES_DIR = path.join(BASE_DIR, 'assets', 'images');
 const FONTS_DIR = path.join(BASE_DIR, 'assets', 'fonts');
@@ -155,6 +156,9 @@ module.exports = async function(mode, {
       hash: usesNginx,
       outputDir: 'fonts'
     }),
+    parts.copy([
+      { from: COPY_DIR, to: '' }
+    ]),
     // Configure the dev server
     parts.devServer({
       port: process.env.PORT

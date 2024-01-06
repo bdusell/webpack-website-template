@@ -1,4 +1,5 @@
 const autoprefixer = require('autoprefixer');
+const CopyPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ESLintPlugin = require('eslint-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -551,6 +552,14 @@ exports.loadHTML = function(options = {}) {
         }
       ]
     }
+  };
+};
+
+exports.copy = function(patterns) {
+  return {
+    plugins: [
+      new CopyPlugin({ patterns })
+    ]
   };
 };
 
