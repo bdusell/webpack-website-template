@@ -1,6 +1,6 @@
 -
-  const _metadata = require('./_metadata');
-  const baseUrl = _metadata.baseUrl;
+  const _config = require('./_config');
+  const baseUrl = _config.baseUrl;
   // These are variables that can be used to configure this template by
   // redefining them in the `variables` block.
   // Note that in Webpack mode, images should be the result of a require.
@@ -17,19 +17,19 @@
   let articleModifiedAt = null;
   let articleAuthorTwitter = null;
   let articleSection = null;
-  let favicon = _metadata.favicon;
+  let favicon = _config.favicon;
   const og = {
     title: null,
     image: null,
     url: null,
     description: null,
-    siteName: _metadata.siteName,
+    siteName: _config.siteName,
     imageAlt: null
   };
   const twitter = {
     // Choices are 'summary' and 'summary_large_image'.
-    cardType: 'summary_large_image',
-    site: _metadata.siteTwitterAccount,
+    cardType: 'summary',
+    site: _config.siteTwitterAccount,
     title: null,
     description: null,
     image: null,
