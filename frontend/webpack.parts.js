@@ -6,6 +6,7 @@ const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 
 // TODO Add `include` directory to everything, and print warning when it is missing.
@@ -98,18 +99,15 @@ function loadCSS({
   sourceMaps = true,
   minify = false,
   hash = false,
-  postcssPlugins = [],
   test,
   additionalLoaders
 }) {
   // See https://webpack.js.org/guides/asset-management/#loading-css
   // See https://webpack.js.org/plugins/mini-css-extract-plugin/
   // If autoprefixer is needed, add it to the list of postcss plugins.
+  const postcssPlugins = [];
   if(autoprefixer) {
-    postcssPlugins = [
-      _autoprefixer(),
-      ...postcssPlugins
-    ];
+    postcssPlugins.push(_autoprefixer());
   }
   // If there are any postcss plugins, add the postcss loader.
   if(postcssPlugins.length > 0) {
@@ -141,28 +139,44 @@ function loadCSS({
   ];
   const plugins = [];
   if(separateFile) {
-    plugins.push(new MiniCssExtractPlugin({
-      filename: hash ? '[name].[contenthash:8].css' : '[name].css',
-      chunkFilename: hash ? '[id].[contenthash:8].css' : '[id].css'
-    }));
+    plugins.push(
+      new MiniCssExtractPlugin({
+        filename: hash ? '[name].[contenthash:8].css' : '[name].css',
+        chunkFilename: hash ? '[id].[contenthash:8].css' : '[id].css'
+      })
+    );
   }
-  let minifyOptions;
+  const sourceMapOptions = {};
+  if(sourceMaps) {
+    // It is necessary to use the source map plugin instead of `devtool`
+    // because we need to use different source map types for JS and CSS.
+    // and https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/lib/EvalSourceMapDevToolPlugin.js
+    // and https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/lib/SourceMapDevToolPlugin.js
+    // and https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/lib/WebpackOptionsApply.js#L241-L270
+    sourceMapOptions.devtool = false;
+    plugins.push(
+      new webpack.SourceMapDevToolPlugin({
+        test: /\.css($|\?)/i,
+        filename: null,
+        module: true,
+        columns: true,
+        noSources: false
+      })
+    );
+  }
+  const minifyOptions = {};
   if(minify) {
     // https://webpack.js.org/plugins/mini-css-extract-plugin/#minimizing-for-production
-    minifyOptions = {
-      optimization: {
-        minimize: true,
-        minimizer: [
-          new CssMinimizerPlugin({
-            minimizerOptions: {
-              preset: ['default']
-            }
-          })
-        ]
-      }
+    minifyOptions.optimization = {
+      minimize: true,
+      minimizer: [
+        new CssMinimizerPlugin({
+          minimizerOptions: {
+            preset: ['default']
+          }
+        })
+      ]
     };
-  } else {
-    minifyOptions = {};
   }
   return {
     module: {
@@ -174,6 +188,7 @@ function loadCSS({
       ]
     },
     plugins,
+    ...sourceMapOptions,
     ...minifyOptions
   };
 }
@@ -240,17 +255,34 @@ exports.loadJavaScript = function({
       // TODO Is there a way to use just the hash and no id? The id is very
       // long.
       chunkFilename: hash ? '[id].[contenthash:8].js' : '[id].js'
-    }
+    },
+    plugins: []
   };
+  if(sourceMaps) {
+    // It is necessary to use the source map plugin instead of `devtool`
+    // because we need to use different source map types for JS and CSS.
+    // See https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/declarations/plugins/SourceMapDevToolPlugin.d.ts
+    // and https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/lib/EvalSourceMapDevToolPlugin.js
+    // and https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/lib/WebpackOptionsApply.js#L241-L270
+    result.devtool = false;
+    result.plugins.push(
+      new webpack.EvalSourceMapDevToolPlugin({
+        test: /\.((c|m)?js)($|\?)/i,
+        module: true,
+        columns: true,
+        noSources: false
+      })
+    );
+  }
   if(lint) {
-    result.plugins = [
+    result.plugins.push(
       new ESLintPlugin({
         cache: cacheEslint,
         context: '/',
         files: include,
         ...eslintOptions
       })
-    ];
+    );
   }
   if(minify) {
     // See https://webpack.js.org/guides/production/#minification
@@ -258,7 +290,7 @@ exports.loadJavaScript = function({
     if(separateCommentsFile) {
       extractComments = {
         condition: true,
-        banner: commentsFile => `License information: ${commentsFile}`
+        banner: commentsFile => `For license information, see the file ${commentsFile}`
       };
     } else {
       extractComments = false;
@@ -437,7 +469,7 @@ function loadFiles({
         // behavior ourselves.
         // See https://stackoverflow.com/questions/69138588/webpack-5-path-context
         filename: options => {
-          const originalPath = options.module.request;
+          const originalPath = options.module.resource;
           const pathInfo = path.posix.parse(originalPath);
           const originalDir = pathInfo.dir;
           if(!originalDir.startsWith(context)) {
@@ -562,11 +594,6 @@ exports.page = function({
       })
     ]
   };
-};
-
-exports.generateSourceMaps = function({ type }) {
-  // See https://webpack.js.org/guides/development/#using-source-maps
-  return { devtool: type };
 };
 
 exports.clean = function() {

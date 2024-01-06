@@ -182,17 +182,6 @@ module.exports = async function(mode, {
         }
       }
     ]);
-  } else {
-    result = merge([
-      result,
-      parts.generateSourceMaps({
-        // TODO Use eval-cheap-module-source-map
-        // https://webpack.js.org/guides/build-performance/#devtool
-        // https://webpack.js.org/guides/production/#source-mapping
-        // https://webpack.js.org/plugins/terser-webpack-plugin/#note-about-source-maps
-        type: inlineSourceMaps ? 'inline-source-map' : 'eval-source-map'
-      })
-    ]);
   }
   return result;
 };
