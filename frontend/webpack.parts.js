@@ -13,6 +13,60 @@ const { merge } = require('webpack-merge');
 // TODO Add `include` directory to everything, and print warning when it is missing.
 // https://webpack.js.org/guides/build-performance/#loaders
 
+exports.general = function({
+  mode,
+  outputDir,
+  clean,
+  publicPath = '/',
+  splitVendor = false
+}) {
+  let splitVendorOptions;
+  if(splitVendor) {
+    // Generates a separate .js file for libraries from node_modules/.
+    // See https://webpack.js.org/guides/caching/#extracting-boilerplate
+    // See https://survivejs.com/webpack/building/bundle-splitting/
+    splitVendorOptions = {
+      cacheGroups: {
+        vendor: {
+           test: /[\\/]node_modules[\\/]/,
+           name: 'vendors',
+           chunks: 'all',
+        }
+      }
+    };
+  } else {
+    splitVendorOptions = {};
+  }
+  return {
+    mode,
+    output: {
+      path: outputDir,
+      // See https://webpack.js.org/guides/public-path/
+      publicPath,
+      // See https://webpack.js.org/guides/output-management/#cleaning-up-the-dist-folder
+      clean
+    },
+    optimization: {
+      // TODO Disable some things in dev mode?
+      // https://webpack.js.org/guides/build-performance/#avoid-extra-optimization-steps
+      splitChunks: {
+        // See https://webpack.js.org/guides/code-splitting/#splitchunksplugin
+        // See https://webpack.js.org/plugins/split-chunks-plugin/
+        chunks: 'all',
+        ...splitVendorOptions
+      },
+      // See https://survivejs.com/webpack/optimizing/separating-manifest/
+      // TODO Change to 'single'?
+      // https://webpack.js.org/guides/caching/#extracting-boilerplate
+      // TODO Change to true?
+      // https://webpack.js.org/guides/build-performance/#minimal-entry-chunk
+      runtimeChunk: {
+        name: 'manifest'
+      }
+    }
+  };
+};
+
 exports.devServer = function({
   // Using 0.0.0.0 is necessary for hosting from inside Docker.
   // See https://webpack.js.org/configuration/dev-server/#devserverhost
@@ -606,14 +660,5 @@ exports.page = function({
           false
       })
     ]
-  };
-};
-
-exports.clean = function(doClean = true) {
-  // See https://webpack.js.org/guides/output-management/#cleaning-up-the-dist-folder
-  return {
-    output: {
-      clean: doClean
-    }
   };
 };

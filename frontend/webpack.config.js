@@ -58,10 +58,8 @@ module.exports = async function(mode, {
   usesNginx = true,
   clean = false
 }) {
-
   const isProduction = mode === 'production';
-
-  let result = merge([
+  return merge([
     // Targets
     pages([
       'index',
@@ -77,41 +75,11 @@ module.exports = async function(mode, {
       },
       minifyHtml: isProduction
     }),
-    // Configure output
-    {
+    parts.general({
       mode,
-      output: {
-        path: OUTPUT_DIR,
-        // See https://webpack.js.org/guides/public-path/
-        publicPath: '/'
-        // TODO No pathinfo for faster build
-        // https://webpack.js.org/guides/build-performance/#output-without-path-info
-      },
-      optimization: {
-        // TODO Use 'deterministic'
-        // https://webpack.js.org/guides/caching/#module-identifiers
-        // TODO Disable some things in dev mode?
-        // https://webpack.js.org/guides/build-performance/#avoid-extra-optimization-steps
-        splitChunks: {
-          // Generates a separate .js file for third-party libraries.
-          // See https://webpack.js.org/guides/code-splitting/#splitchunksplugin
-          // See https://webpack.js.org/plugins/split-chunks-plugin/
-          // and https://survivejs.com/webpack/building/bundle-splitting/
-          // TODO Use cacheGroups
-          // https://webpack.js.org/guides/caching/#extracting-boilerplate
-          chunks: 'all'
-        },
-        // See https://survivejs.com/webpack/optimizing/separating-manifest/
-        // TODO Change to 'single'?
-        // https://webpack.js.org/guides/caching/#extracting-boilerplate
-        // TODO Change to true?
-        // https://webpack.js.org/guides/build-performance/#minimal-entry-chunk
-        runtimeChunk: {
-          name: 'manifest'
-        }
-      }
-    },
-    parts.clean(clean),
+      outputDir: OUTPUT_DIR,
+      clean
+    }),
     // HTML config
     parts.loadPug(),
     // CSS config
@@ -171,18 +139,4 @@ module.exports = async function(mode, {
       ]
     }
   ]);
-  if(isProduction) {
-    result = merge([
-      result,
-      {
-        optimization: {
-          // TODO Keep this?
-          splitChunks: {
-            name: false
-          }
-        }
-      }
-    ]);
-  }
-  return result;
 };
