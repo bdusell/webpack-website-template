@@ -3,4 +3,4 @@ npx nodemon \
   --watch webpack.config.js \
   --watch webpack.parts.js \
   --watch .browserslistrc \
-  --exec node webpack.cli.js "$@"
+  --exec node -- webpack.cli.js "$@"
