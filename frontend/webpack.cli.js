@@ -48,11 +48,6 @@ async function main() {
     usesNginx: !args.devServer,
     clean: args.clean
   });
-  // TODO are these needed for devServer?
-  const watchOptions = {
-    aggregateTimeout: 300,
-    poll: false
-  };
   if(args.devServer) {
     console.log('Running in dev server mode.');
     const devServerOptions = webpackConfig.devServer;
@@ -66,7 +61,8 @@ async function main() {
     console.log('Running in watch mode.');
     const compiler = webpack(webpackConfig);
     return new Promise((resolve, reject) => {
-      compiler.watch(watchOptions, (err, stats) => {
+      // For options, see https://webpack.js.org/configuration/watch/
+      compiler.watch({}, (err, stats) => {
         if(err) {
           handleException(err);
         } else {
