@@ -1,0 +1,16 @@
+version: "3.2"
+services:
+  server:
+    image: ${APP_NAME}-server-dev:latest
+    deploy:
+      replicas: 1
+    ports:
+      - "${DEV_STACK_PORT}:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+      - ./server/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - public-network
+networks:
+  public-network:
+    internal: false

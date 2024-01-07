@@ -10,7 +10,6 @@ program
   .option('--production', 'Compile things in production mode.')
   .option('--watch', 'Watch input files and recompile when they change.')
   .option('--dev-server', 'Run the dev server.')
-  .option('--inline', 'Use inline source maps.')
   .option('--no-clean', 'Do not clean the output directory.');
 program.parse();
 const args = program.opts();
@@ -47,7 +46,6 @@ function handleStats(stats, exit) {
 async function main() {
   const webpackConfig = await constructWebpackConfig(mode, {
     usesNginx: !args.devServer,
-    inlineSourceMaps: args.inline,
     clean: args.clean
   });
   // TODO are these needed for devServer?

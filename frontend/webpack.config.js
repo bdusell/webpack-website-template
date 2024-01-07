@@ -55,9 +55,8 @@ function pages(names, options) {
 }
 
 module.exports = async function(mode, {
-  usesNginx,
-  inlineSourceMaps,
-  clean
+  usesNginx = true,
+  clean = false
 }) {
 
   const isProduction = mode === 'production';
@@ -112,6 +111,7 @@ module.exports = async function(mode, {
         }
       }
     },
+    parts.clean(clean),
     // HTML config
     parts.loadPug(),
     // CSS config
@@ -128,6 +128,7 @@ module.exports = async function(mode, {
       exclude: NODE_MODULES_DIR,
       cacheBabel: !isProduction,
       sourceMaps: !isProduction,
+      sourceMapsNoEval: usesNginx,
       minify: isProduction,
       hash: usesNginx,
       polyfill: true,
@@ -168,12 +169,8 @@ module.exports = async function(mode, {
       plugins: [
         new WebpackBar()
       ]
-    },
+    }
   ]);
-  // Clean output directory before generating new files
-  if(clean) {
-    result = merge([result, parts.clean()]);
-  }
   if(isProduction) {
     result = merge([
       result,

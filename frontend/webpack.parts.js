@@ -199,7 +199,8 @@ exports.loadJavaScript = function({
   include,
   exclude,
   cacheBabel = false,
-  sourceMaps = true,
+  sourceMaps = false,
+  sourceMapsNoEval = false,
   minify = false,
   separateCommentsFile = true,
   hash = false,
@@ -266,13 +267,16 @@ exports.loadJavaScript = function({
     // and https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/lib/EvalSourceMapDevToolPlugin.js
     // and https://github.com/webpack/webpack/blob/228fc69f40c3e9ec6d99a5105fdc85b5bca4ce43/lib/WebpackOptionsApply.js#L241-L270
     result.devtool = false;
+    const sourceMapPluginOptions = {
+      test: /\.((c|m)?js)($|\?)/i,
+      module: true,
+      columns: true,
+      noSources: false
+    };
     result.plugins.push(
-      new webpack.EvalSourceMapDevToolPlugin({
-        test: /\.((c|m)?js)($|\?)/i,
-        module: true,
-        columns: true,
-        noSources: false
-      })
+      sourceMapsNoEval ?
+        new webpack.SourceMapDevToolPlugin(sourceMapPluginOptions) :
+        new webpack.EvalSourceMapDevToolPlugin(sourceMapPluginOptions)
     );
   }
   if(lint) {
@@ -605,11 +609,11 @@ exports.page = function({
   };
 };
 
-exports.clean = function() {
+exports.clean = function(doClean = true) {
   // See https://webpack.js.org/guides/output-management/#cleaning-up-the-dist-folder
   return {
     output: {
-      clean: true
+      clean: doClean
     }
   };
 };

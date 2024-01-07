@@ -1,0 +1,7 @@
+Dockerfile*
+**/scripts/
+**/VERSION
+
+**/.git*
+**/*.swp
+**/.directory

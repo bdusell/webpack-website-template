@@ -33,9 +33,9 @@
   },
   "scripts": {
     "build": "node webpack.cli.js --production",
-    "build-dev": "node webpack.cli.js --inline --no-clean",
-    "watch-dev": "node webpack.cli.js --inline --no-clean --watch",
-    "dev-server": "bash scripts/dev-server.bash"
+    "build-dev": "node webpack.cli.js",
+    "watch-dev": "bash scripts/watch-webpack-cli.bash --watch",
+    "dev-server": "bash scripts/watch-webpack-cli.bash --dev-server"
   },
   "author": "Example Guy",
   "license": "UNLICENSED",
