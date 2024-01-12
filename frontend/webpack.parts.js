@@ -15,6 +15,12 @@ const { merge } = require('webpack-merge');
 
 const HASH_LENGTH = 8;
 
+function warnIfIncludeIsMissing(include, name) {
+  if(include == null) {
+    console.warn(`\`include\` was not used with \`${name}\`, which may result in a slower build`);
+  }
+}
+
 exports.general = function({
   mode,
   outputDir,
@@ -164,14 +170,17 @@ const _autoprefixer = autoprefixer;
 
 // NOTE Autoprefixer automatically reads the file `.browserslistrc`.
 function loadCSS({
+  test,
+  include,
+  exclude,
   separateFile = true,
   autoprefixer = true,
   sourceMaps = true,
   minify = false,
   hash = false,
-  test,
   additionalLoaders
 }) {
+  warnIfIncludeIsMissing(include, 'loadCSS');
   // See https://webpack.js.org/guides/asset-management/#loading-css
   // See https://webpack.js.org/plugins/mini-css-extract-plugin/
   // If autoprefixer is needed, add it to the list of postcss plugins.
@@ -253,6 +262,8 @@ function loadCSS({
       rules: [
         {
           test,
+          include,
+          exclude,
           use: loaders
         }
       ]
@@ -278,6 +289,10 @@ exports.loadJavaScript = function({
   cacheEslint = false,
   eslintOptions = {}
 }) {
+  warnIfIncludeIsMissing(include, 'loadJavaScript');
+  if(exclude == null) {
+    console.warn('`exclude` was not used with `loadJavaScript`; it is recommended to exclude `node_modules`');
+  }
   // If polyfill is true, the following package is required:
   //     npm install --save @babel/runtime-corejs3
   // If polyfill is false, the following package is required:
@@ -527,6 +542,7 @@ function loadFiles({
   hash = true,
   additionalLoaders = []
 }) {
+  warnIfIncludeIsMissing(include, 'loadFiles');
   if(neverInline && alwaysInline) {
     throw new Error('neverInline and alwaysInline cannot both be true');
   }

@@ -82,7 +82,7 @@ module.exports = async function(mode, {
     parts.loadPug(),
     // CSS config
     parts.loadSass({
-      include: CSS_DIR,
+      include: [CSS_DIR, NODE_MODULES_DIR],
       autoprefixer: true,
       sourceMaps: !isProduction,
       minify: isProduction,
