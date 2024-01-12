@@ -13,6 +13,8 @@ const { merge } = require('webpack-merge');
 // TODO Add `include` directory to everything, and print warning when it is missing.
 // https://webpack.js.org/guides/build-performance/#loaders
 
+const HASH_LENGTH = 8;
+
 exports.general = function({
   mode,
   outputDir,
@@ -209,8 +211,8 @@ function loadCSS({
   if(separateFile) {
     plugins.push(
       new MiniCssExtractPlugin({
-        filename: hash ? '[name].[contenthash:8].css' : '[name].css',
-        chunkFilename: hash ? '[id].[contenthash:8].css' : '[id].css'
+        filename: hash ? `[name].[contenthash:${HASH_LENGTH}].css` : '[name].css',
+        chunkFilename: hash ? `[id].[contenthash:${HASH_LENGTH}].css` : '[id].css'
       })
     );
   }
@@ -320,10 +322,8 @@ exports.loadJavaScript = function({
     },
     output: {
       // See https://webpack.js.org/guides/caching/#output-filenames
-      filename: hash ? '[name].[contenthash:8].js' : '[name].js',
-      // TODO Is there a way to use just the hash and no id? The id is very
-      // long.
-      chunkFilename: hash ? '[id].[contenthash:8].js' : '[id].js'
+      filename: hash ? `[name].[contenthash:${HASH_LENGTH}].js` : '[name].js',
+      chunkFilename: hash ? `[id].[contenthash:${HASH_LENGTH}].js` : '[id].js'
     },
     plugins: []
   };
@@ -551,8 +551,7 @@ function loadFiles({
           let hashPart;
           if(hash) {
             const fullHash = options.contentHash;
-            const hashLength = 8;
-            const partialHash = fullHash.slice(0, hashLength);
+            const partialHash = fullHash.slice(0, HASH_LENGTH);
             hashPart = `.${partialHash}`;
           } else {
             hashPart = '';
