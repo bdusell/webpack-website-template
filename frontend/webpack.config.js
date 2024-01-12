@@ -23,10 +23,6 @@ const NODE_MODULES_DIR = path.join(BASE_DIR, 'node_modules');
 // TODO Bundle analysis?
 // https://webpack.js.org/guides/code-splitting/#bundle-analysis
 
-// TODO Add build caching?
-// https://webpack.js.org/guides/build-performance/#persistent-cache
-// https://webpack.js.org/configuration/cache/
-
 // TODO Enable tree shaking in production
 // https://webpack.js.org/guides/tree-shaking/#conclusion
 
@@ -78,7 +74,9 @@ module.exports = async function(mode, {
     parts.general({
       mode,
       outputDir: OUTPUT_DIR,
-      clean
+      clean,
+      splitVendor: true,
+      useFilesystemCache: usesNginx && !isProduction
     }),
     // HTML config
     parts.loadPug(),

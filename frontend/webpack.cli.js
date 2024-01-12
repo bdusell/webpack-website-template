@@ -74,6 +74,7 @@ async function main() {
     console.log('Running in compile mode.');
     const compiler = webpack(webpackConfig);
     const stats = await util.promisify(cb => compiler.run(cb))();
+    await util.promisify(cb => compiler.close(cb))();
     handleStats(stats, true);
   }
 }

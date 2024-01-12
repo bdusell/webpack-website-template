@@ -18,7 +18,9 @@ exports.general = function({
   outputDir,
   clean,
   publicPath = '/',
-  splitVendor = false
+  splitVendor = true,
+  // NOTE Caching to the filesystem only seems to work in watch mode.
+  useFilesystemCache = false
 }) {
   let splitVendorOptions;
   if(splitVendor) {
@@ -40,6 +42,17 @@ exports.general = function({
   } else {
     splitVendorOptions = {};
   }
+  // Optionally cache builds in the filesystem.
+  // See https://webpack.js.org/guides/build-performance/#persistent-cache
+  // See https://webpack.js.org/configuration/cache/
+  const cacheOptions =
+    useFilesystemCache ?
+    {
+      cache: {
+        type: 'filesystem'
+      }
+    } :
+    {};
   return {
     mode,
     output: {
@@ -62,7 +75,8 @@ exports.general = function({
       // See https://webpack.js.org/guides/caching/#extracting-boilerplate
       // See https://webpack.js.org/guides/build-performance/#minimal-entry-chunk
       runtimeChunk: 'single'
-    }
+    },
+    ...cacheOptions
   };
 };
 
