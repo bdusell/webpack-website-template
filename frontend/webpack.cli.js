@@ -10,7 +10,8 @@ program
   .option('--production', 'Compile things in production mode.')
   .option('--watch', 'Watch input files and recompile when they change.')
   .option('--dev-server', 'Run the dev server.')
-  .option('--no-clean', 'Do not clean the output directory.');
+  .option('--no-clean', 'Do not clean the output directory.')
+  .option('--cache', 'Use a filesystem build cache.');
 program.parse();
 const args = program.opts();
 
@@ -46,7 +47,8 @@ function handleStats(stats, exit) {
 async function main() {
   const webpackConfig = await constructWebpackConfig(mode, {
     usesNginx: !args.devServer,
-    clean: args.clean
+    clean: args.clean,
+    useFilesystemCache: args.cache
   });
   if(args.devServer) {
     console.log('Running in dev server mode.');

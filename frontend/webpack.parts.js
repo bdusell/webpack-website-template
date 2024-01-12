@@ -10,12 +10,11 @@ const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 
-// TODO Add `include` directory to everything, and print warning when it is missing.
-// https://webpack.js.org/guides/build-performance/#loaders
-
 const HASH_LENGTH = 8;
 
 function warnIfIncludeIsMissing(include, name) {
+  // Print a warning whenever `include` is missing for a loader.
+  // See https://webpack.js.org/guides/build-performance/#loaders
   if(include == null) {
     console.warn(`\`include\` was not used with \`${name}\`, which may result in a slower build`);
   }
@@ -27,7 +26,8 @@ exports.general = function({
   clean,
   publicPath = '/',
   splitVendor = true,
-  // NOTE Caching to the filesystem only seems to work in watch mode.
+  // NOTE If used, the filesystem cache is located at
+  // `node_modules/.cache/webpack`.
   useFilesystemCache = false
 }) {
   let splitVendorOptions;
@@ -278,6 +278,7 @@ function loadCSS({
 exports.loadJavaScript = function({
   include,
   exclude,
+  // If used, the Babel cache is stored in `node_modules/.cache/babel-loader`.
   cacheBabel = false,
   sourceMaps = false,
   sourceMapsNoEval = false,
@@ -286,6 +287,8 @@ exports.loadJavaScript = function({
   hash = false,
   polyfill = false,
   lint = true,
+  // If used, the ESLint cache is stored in
+  // `node_modules/.cache/eslint-webpack-plugin`.
   cacheEslint = false,
   eslintOptions = {}
 }) {

@@ -52,7 +52,8 @@ function pages(names, options) {
 
 module.exports = async function(mode, {
   usesNginx = true,
-  clean = false
+  clean = false,
+  useFilesystemCache = false
 }) {
   const isProduction = mode === 'production';
   return merge([
@@ -76,7 +77,7 @@ module.exports = async function(mode, {
       outputDir: OUTPUT_DIR,
       clean,
       splitVendor: true,
-      useFilesystemCache: usesNginx && !isProduction
+      useFilesystemCache
     }),
     // HTML config
     parts.loadPug(),
