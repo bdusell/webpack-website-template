@@ -25,6 +25,9 @@ exports.general = function({
     // Generates a separate .js file for libraries from node_modules/.
     // See https://webpack.js.org/guides/caching/#extracting-boilerplate
     // See https://survivejs.com/webpack/building/bundle-splitting/
+    // Apparently this is the default behavior anyway; it's not clear whether
+    // adding this configuration is necessary.
+    // See https://webpack.js.org/plugins/split-chunks-plugin/
     splitVendorOptions = {
       cacheGroups: {
         vendor: {
@@ -47,22 +50,18 @@ exports.general = function({
       clean
     },
     optimization: {
-      // TODO Disable some things in dev mode?
-      // https://webpack.js.org/guides/build-performance/#avoid-extra-optimization-steps
       splitChunks: {
         // See https://webpack.js.org/guides/code-splitting/#splitchunksplugin
         // See https://webpack.js.org/plugins/split-chunks-plugin/
         chunks: 'all',
         ...splitVendorOptions
       },
-      // See https://survivejs.com/webpack/optimizing/separating-manifest/
-      // TODO Change to 'single'?
-      // https://webpack.js.org/guides/caching/#extracting-boilerplate
-      // TODO Change to true?
-      // https://webpack.js.org/guides/build-performance/#minimal-entry-chunk
-      runtimeChunk: {
-        name: 'manifest'
-      }
+      // Factor out the Webpack module runtime into a single chunk.
+      // See https://webpack.js.org/configuration/optimization/#optimizationruntimechunk
+      // See https://survivejs.com/webpack/optimizing/separating-runtime/
+      // See https://webpack.js.org/guides/caching/#extracting-boilerplate
+      // See https://webpack.js.org/guides/build-performance/#minimal-entry-chunk
+      runtimeChunk: 'single'
     }
   };
 };
