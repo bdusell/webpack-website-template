@@ -16,9 +16,6 @@ const IMAGES_DIR = path.join(BASE_DIR, 'assets', 'images');
 const FONTS_DIR = path.join(BASE_DIR, 'assets', 'fonts');
 const NODE_MODULES_DIR = path.join(BASE_DIR, 'node_modules');
 
-// TODO testing with Mocha
-// https://webpack.js.org/guides/integrations/#mocha
-
 function page(name, { minifyHtml, data } = {}) {
   return merge([
     {
