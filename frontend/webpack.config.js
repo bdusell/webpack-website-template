@@ -16,16 +16,6 @@ const IMAGES_DIR = path.join(BASE_DIR, 'assets', 'images');
 const FONTS_DIR = path.join(BASE_DIR, 'assets', 'fonts');
 const NODE_MODULES_DIR = path.join(BASE_DIR, 'node_modules');
 
-// TODO Polyfill Promise?
-// https://github.com/stefanpenner/es6-promise
-// https://github.com/taylorhakes/promise-polyfill
-
-// TODO Bundle analysis?
-// https://webpack.js.org/guides/code-splitting/#bundle-analysis
-
-// TODO Enable tree shaking in production
-// https://webpack.js.org/guides/tree-shaking/#conclusion
-
 // TODO testing with Mocha
 // https://webpack.js.org/guides/integrations/#mocha
 

@@ -275,6 +275,10 @@ function loadCSS({
 }
 
 // NOTE Babel automatically reads the file `.browserslistrc`.
+// NOTE For even more aggressive tree shaking (elimination of unused modules),
+// consider using "sideEffects" in package.json. Make sure to mark stylesheets
+// as having side effects.
+// See https://webpack.js.org/guides/tree-shaking/
 exports.loadJavaScript = function({
   include,
   exclude,
@@ -315,6 +319,11 @@ exports.loadJavaScript = function({
                 // NOTE By default, Babel targets the oldest browsers possible,
                 // which likely generates more code than necessary. This can be
                 // adjusted with the file `.browserslistrc`.
+                // NOTE Babel is smart enough to know that it's running in
+                // Webpack, so it preserves import/export syntax so that it is
+                // compatible with tree shaking.
+                // See https://babeljs.io/docs/babel-preset-env#modules
+                // See https://webpack.js.org/guides/tree-shaking/#conclusion
                 presets: ['@babel/preset-env'],
                 // This factors out some of Babel's boilerplate code into a
                 // single module.
