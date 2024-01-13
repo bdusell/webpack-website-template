@@ -108,8 +108,12 @@ async function runCli({
   }
   program.parse();
   const programOpts = program.opts();
-
-  const isProduction = programOpts.production;
+  const isProduction = Boolean(programOpts.production);
+  const watch = Boolean(programOpts.watch);
+  const devServer = Boolean(programOpts.devServer);
+  const clean = Boolean(programOpts.clean);
+  const cache = Boolean(programOpts.cache);
+  const statsFile = programOpts.statsFile;
   const mode = isProduction ? 'production' : 'development';
 
   const htmlDir = path.join(baseDir, 'src', 'html');
@@ -146,11 +150,11 @@ async function runCli({
   await runWebpack(customConfigResult, {
     mode,
     baseDir: baseDir,
-    devServer: programOpts.devServer,
-    clean: programOpts.clean,
-    cache: programOpts.cache,
-    watch: programOpts.watch,
-    statsFile: programOpts.statsFile
+    devServer,
+    clean,
+    cache,
+    watch,
+    statsFile
   });
 }
 
