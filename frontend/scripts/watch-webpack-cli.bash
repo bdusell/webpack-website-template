@@ -1,6 +1,6 @@
 npx nodemon \
   --watch webpack.cli.js \
-  --watch webpack.config.js \
-  --watch webpack.parts.js \
+  --watch package.json \
   --watch .browserslistrc \
+  --watch .eslintrc.yml \
   --exec node -- webpack.cli.js "$@"

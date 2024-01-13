@@ -1,94 +1,20 @@
-const fs = require('fs');
-const util = require('util');
+const { main } = require('./webpack-config/cli');
 
-const { program } = require('commander');
-const webpack = require('webpack');
-const WebpackDevServer = require('webpack-dev-server');
-
-const constructWebpackConfig = require('./webpack.config.js');
-
-program
-  .option('--production', 'Compile things in production mode.')
-  .option('--watch', 'Watch input files and recompile when they change.')
-  .option('--dev-server', 'Run the dev server.')
-  .option('--no-clean', 'Do not clean the output directory.')
-  .option('--cache', 'Use a filesystem build cache.')
-  .option('--stats-file <path>',
-    'Path where a stats.json file will be written that can be used with analysis tools.');
-program.parse();
-const args = program.opts();
-
-const isProduction = args.production;
-const mode = isProduction ? 'production' : 'development';
-
-function handleException(err) {
-  console.error(err.stack || err);
-  if(err.details) {
-    console.error(err.details);
+main({
+  baseDir: __dirname,
+  customConfig: async ({ pages, isProduction }) => {
+    return [
+      pages([
+        'index',
+        'blog/index',
+        'blog/first-post',
+        'about',
+        'subdir/relative-url-in-sass',
+        'babel-test',
+        'images-test'
+      ], {
+        useGoogleAnalytics: isProduction
+      })
+    ];
   }
-}
-
-async function handleStats(stats, exit, statsFile) {
-  const info = stats.toJson();
-  console.log(stats.toString({
-    colors: true
-  }));
-  if(stats.hasErrors()) {
-    console.error(`See errors above. [${info.errors.length}]`);
-  }
-  if(stats.hasWarnings()) {
-    console.warn(`See warnings above. [${info.warnings.length}]`);
-  }
-  if(exit && stats.hasErrors()) {
-    process.exit(1);
-  }
-  if(statsFile != null) {
-    console.log(`Writing ${statsFile}.`);
-    await util.promisify(cb => fs.writeFile(statsFile, JSON.stringify(info), cb))();
-  }
-  if(!(stats.hasErrors() || stats.hasWarnings())) {
-    console.log('Success. No errors or warnings.');
-  }
-}
-
-async function main() {
-  const webpackConfig = await constructWebpackConfig(mode, {
-    usesNginx: !args.devServer,
-    clean: args.clean,
-    useFilesystemCache: args.cache
-  });
-  if(args.devServer) {
-    console.log('Running in dev server mode.');
-    const devServerOptions = webpackConfig.devServer;
-    const compiler = webpack(webpackConfig);
-    const server = new WebpackDevServer(devServerOptions, compiler);
-    const { host, port } = webpackConfig.devServer;
-    server.startCallback(() => {
-      console.log(`Started dev server on http://${host}:${port}`);
-    });
-  } else if(args.watch) {
-    console.log('Running in watch mode.');
-    const compiler = webpack(webpackConfig);
-    return new Promise((resolve, reject) => {
-      // For options, see https://webpack.js.org/configuration/watch/
-      compiler.watch({}, (err, stats) => {
-        if(err) {
-          handleException(err);
-        } else {
-          handleStats(stats, false, args.statsFile).then(resolve, reject);
-        }
-      });
-    });
-  } else {
-    console.log('Running in compile mode.');
-    const compiler = webpack(webpackConfig);
-    const stats = await util.promisify(cb => compiler.run(cb))();
-    await util.promisify(cb => compiler.close(cb))();
-    await handleStats(stats, true, args.statsFile);
-  }
-}
-
-main().catch(err => {
-  handleException(err);
-  process.exit(1);
 });
