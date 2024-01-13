@@ -1,3 +1,4 @@
+const fs = require('fs');
 const util = require('util');
 
 const { program } = require('commander');
@@ -11,7 +12,9 @@ program
   .option('--watch', 'Watch input files and recompile when they change.')
   .option('--dev-server', 'Run the dev server.')
   .option('--no-clean', 'Do not clean the output directory.')
-  .option('--cache', 'Use a filesystem build cache.');
+  .option('--cache', 'Use a filesystem build cache.')
+  .option('--stats-file <path>',
+    'Path where a stats.json file will be written that can be used with analysis tools.');
 program.parse();
 const args = program.opts();
 
@@ -25,7 +28,7 @@ function handleException(err) {
   }
 }
 
-function handleStats(stats, exit) {
+async function handleStats(stats, exit, statsFile) {
   const info = stats.toJson();
   console.log(stats.toString({
     colors: true
@@ -38,6 +41,10 @@ function handleStats(stats, exit) {
   }
   if(exit && stats.hasErrors()) {
     process.exit(1);
+  }
+  if(statsFile != null) {
+    console.log(`Writing ${statsFile}.`);
+    await util.promisify(cb => fs.writeFile(statsFile, JSON.stringify(info), cb))();
   }
   if(!(stats.hasErrors() || stats.hasWarnings())) {
     console.log('Success. No errors or warnings.');
@@ -68,7 +75,7 @@ async function main() {
         if(err) {
           handleException(err);
         } else {
-          handleStats(stats, false);
+          handleStats(stats, false, args.statsFile).then(resolve, reject);
         }
       });
     });
@@ -77,7 +84,7 @@ async function main() {
     const compiler = webpack(webpackConfig);
     const stats = await util.promisify(cb => compiler.run(cb))();
     await util.promisify(cb => compiler.close(cb))();
-    handleStats(stats, true);
+    await handleStats(stats, true, args.statsFile);
   }
 }
 
