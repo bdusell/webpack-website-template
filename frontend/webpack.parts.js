@@ -399,8 +399,6 @@ exports.loadJavaScript = function({
       minimizer: [
         new TerserPlugin({
           extractComments
-          // TODO Make sure source maps work
-          // https://github.com/terser/terser?tab=readme-ov-file#source-map-options
         })
       ]
     };
