@@ -1,5 +1,5 @@
-ARG DEV_IMAGE_NAME
-FROM ${DEV_IMAGE_NAME}:latest
+ARG DEV_IMAGE
+FROM ${DEV_IMAGE}:latest
 COPY package.json package-lock.json ./
 RUN npm install
 COPY assets ./assets

@@ -1,4 +1,6 @@
-FROM ${APP_NAME}-frontend as frontend
+ARG DEV_IMAGE
+ARG FRONTEND_IMAGE
+FROM ${FRONTEND_IMAGE}:latest as frontend
 RUN cd /app/dist && \
     # Pre-compress static files, creating a new .gz file for each.
     find . -type f -regextype posix-extended \
@@ -15,4 +17,3 @@ RUN cd /app/dist && \
 FROM ${DEV_IMAGE}:latest
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=frontend /app/dist /usr/share/nginx/html
-COPY robots.txt /usr/share/nginx/html/
